@@ -1,0 +1,25 @@
+parser:
+  id: parser-linux-syslog
+  name: Linux Syslog & Auth Parser
+  version: 1.0.0
+  mapping_version: 1.0.0
+  priority: 20
+  status: active
+
+match:
+  vendor: Linux
+  product: Syslog
+  formats:
+    - syslog
+
+patterns:
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:timestamp}\\s+%{NOTSPACE:hostname}\\s+sshd\\[%{INT:pid}\\]:\\s+Accepted\\s+(?P<auth_method>password|publickey)\\s+for\\s+(?P<user>\\w+)\\s+from\\s+%{IP:srcip}\\s+port\\s+%{INT:srcport}\\s+ssh2"
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:timestamp}\\s+%{NOTSPACE:hostname}\\s+sshd\\[%{INT:pid}\\]:\\s+Failed\\s+password\\s+for\\s+(?:invalid\\s+user\\s+)?(?P<user>\\w+)\\s+from\\s+%{IP:srcip}\\s+port\\s+%{INT:srcport}\\s+ssh2"
+
+fields:
+  timestamp: timestamp
+  hostname: hostname
+  user: user
+  srcip: srcip
+  srcport: srcport
+  auth_method: auth_method

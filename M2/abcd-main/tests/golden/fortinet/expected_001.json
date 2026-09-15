@@ -1,0 +1,14 @@
+{
+  "format": "kv",
+  "vendor": "Fortinet",
+  "product": "FortiGate",
+  "fields": {
+    "devname": "FG100D",
+    "devid": "FG100D3G15000001",
+    "action": "allow",
+    "srcip": "192.168.1.5",
+    "dstip": "8.8.8.8",
+    "srcport": 54321,
+    "dstport": 443
+  }
+}

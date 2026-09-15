@@ -1,0 +1,10 @@
+{
+  "version": "2.5.0",
+  "description": "High-priority threat intel configuration",
+  "cache_ttl_seconds": 600,
+  "providers_enabled": [
+    "asset",
+    "geoip",
+    "threat_intel"
+  ]
+}

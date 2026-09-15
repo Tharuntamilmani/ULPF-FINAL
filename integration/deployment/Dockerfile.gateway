@@ -1,0 +1,14 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir fastapi uvicorn httpx pydantic structlog prometheus_client
+
+COPY integration /app/integration
+
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1
+
+EXPOSE 8080
+
+CMD ["uvicorn", "integration.security.ingress_gateway:gateway_app", "--host", "0.0.0.0", "--port", "8080"]

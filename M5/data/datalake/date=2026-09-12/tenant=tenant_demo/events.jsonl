@@ -1,0 +1,6 @@
+{"event": {"id": "evt_lake_01", "type": "authentication"}, "tenant_id": "tenant_demo"}
+{"event": {"id": "evt_lake_01", "type": "authentication"}, "tenant_id": "tenant_demo"}
+{"event": {"id": "evt_lake_01", "type": "authentication"}, "tenant_id": "tenant_demo"}
+{"event": {"id": "evt_dod_idempotent_06", "type": "network", "severity": {"value": 4}}, "tenant_id": "tenant_demo"}
+{"event": {"id": "evt_lake_01", "type": "authentication"}, "tenant_id": "tenant_demo"}
+{"event": {"id": "evt_dod_idempotent_06", "type": "network", "severity": {"value": 4}}, "tenant_id": "tenant_demo"}

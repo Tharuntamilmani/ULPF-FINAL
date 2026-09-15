@@ -1,0 +1,53 @@
+{
+  "$id": "ulpf:contracts:parsed_event:v1",
+  "title": "ParsedEvent",
+  "description": "M2 output / M3 input contract.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "envelope_id",
+    "source_id",
+    "tenant_id",
+    "parsed_at",
+    "parser_id",
+    "fields"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "envelope_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "parsed_at": {
+      "type": "string"
+    },
+    "parser_id": {
+      "type": "string"
+    },
+    "parser_version": {
+      "type": "string"
+    },
+    "fields": {
+      "type": "object",
+      "description": "Flat key/value parsed fields"
+    },
+    "parse_errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "raw_ref": {
+      "type": "string",
+      "description": "Reference back to raw envelope"
+    }
+  }
+}

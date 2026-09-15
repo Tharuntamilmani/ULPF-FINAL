@@ -1,0 +1,26 @@
+parser:
+  id: parser-fortinet-fortigate
+  name: Fortinet FortiGate Key-Value Parser
+  version: 1.0.0
+  mapping_version: 1.0.0
+  priority: 15
+  status: active
+
+match:
+  vendor: Fortinet
+  product: FortiGate
+  formats:
+    - kv
+    - syslog
+
+patterns:
+  - "date=%{NOTSPACE:log_date}\\s+time=%{NOTSPACE:log_time}\\s+devname=\"?%{NOTSPACE:devname}\"?\\s+devid=\"?%{NOTSPACE:devid}\"?\\s+eventtype=\"?%{NOTSPACE:eventtype}\"?\\s+level=\"?%{NOTSPACE:level}\"?\\s+vd=\"?%{NOTSPACE:vd}\"?\\s+srcip=%{IP:srcip}\\s+srcport=%{INT:srcport}\\s+dstip=%{IP:dstip}\\s+dstport=%{INT:dstport}\\s+action=\"?%{NOTSPACE:action}\"?"
+
+fields:
+  srcip: srcip
+  dstip: dstip
+  srcport: srcport
+  dstport: dstport
+  action: action
+  devname: devname
+  devid: devid

@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+*.whl
+.venv/
+venv/
+env/
+.env
+!.env.example
+
+# mypy / ruff / coverage
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# pytest
+.pytest_cache/
+
+# Alembic
+backend/alembic/versions/__pycache__/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Docker / local volumes
+postgres_data/
+redis_data/
+kafka_data/
+minio_data/
+opensearch_data/
+grafana_data/
+prometheus_data/
+
+# Secrets / keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Air-gap packages
+deployment/airgapped/*.tar
+deployment/airgapped/*.tar.gz
+deployment/airgapped/images/
+
+# Logs
+*.log
+logs/

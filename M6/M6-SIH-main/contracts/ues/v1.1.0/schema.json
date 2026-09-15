@@ -1,0 +1,91 @@
+{
+  "$id": "ulpf:contracts:ues:v1.1.0",
+  "title": "UniversalEventSchema v1.1.0",
+  "description": "UES v1.1.0 \u2014 adds user and process fields (backward compatible with v1.0.0).",
+  "type": "object",
+  "required": [
+    "event_id",
+    "tenant_id",
+    "timestamp",
+    "event"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "event": {
+      "type": "object"
+    },
+    "source": {
+      "type": "object"
+    },
+    "destination": {
+      "type": "object"
+    },
+    "network": {
+      "type": "object"
+    },
+    "security": {
+      "type": "object"
+    },
+    "observer": {
+      "type": "object"
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        }
+      }
+    },
+    "process": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "pid": {
+          "type": "integer"
+        },
+        "executable": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "raw_ref": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "labels": {
+      "type": "object"
+    }
+  }
+}

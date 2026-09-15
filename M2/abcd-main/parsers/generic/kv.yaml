@@ -1,0 +1,12 @@
+parser:
+  id: parser-generic-kv
+  name: Generic Key-Value Parser
+  version: 1.0.0
+  priority: 100
+  status: active
+
+match:
+  vendor: Generic
+  product: Key-Value
+  formats:
+    - kv

@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "source_id": "net-src-fw-01",
+      "type": "cisco_asa",
+      "rate_limit": 5000
+    }
+  ]
+}

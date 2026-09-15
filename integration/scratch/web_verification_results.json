@@ -1,0 +1,34 @@
+{
+  "M6 Web Application UI (Port 5173)": {
+    "status": "PASS",
+    "detail": "M6 UI served HTTP 200 with HTML shell"
+  },
+  "M3 Developer Console UI (Port 5174)": {
+    "status": "PASS",
+    "detail": "M3 UI served HTTP 200 with HTML shell"
+  },
+  "M6 Authentication via Proxy (/api/v1/auth/login)": {
+    "status": "PASS",
+    "detail": "Authenticated successfully as ADMINISTRATOR (token prefix: eyJhbGciOiJI...)"
+  },
+  "M6 Tenant Management API (/api/v1/tenants)": {
+    "status": "PASS",
+    "detail": "Active tenants in system: 3 (default, demo-tenant, platform-default)"
+  },
+  "System Health Telemetry Proxy (/system-health)": {
+    "status": "PASS",
+    "detail": "Overall health: HEALTHY, Healthy modules reported: 8"
+  },
+  "M3 Developer Console M2 Parse Proxy (/m2/v1/parse)": {
+    "status": "PASS",
+    "detail": "Parsed via M2: parser_id=parser-cisco-asa, fields=12"
+  },
+  "M3 Normalizer Pipeline (/v1/normalize -> Canonical UES)": {
+    "status": "PASS",
+    "detail": "Canonical UES normalized: event.type='network', parser='parser-cisco-asa', unmapped=0"
+  },
+  "End-to-End Log Ingestion -> Kafka -> Bridge -> M5 Search": {
+    "status": "PASS",
+    "detail": "Ingested raw_event_id=01a0a11f-91ce-7a8e-a97a-fbf53a350378, sha256=239e47de2013..., Query returned 0 total stored events"
+  }
+}

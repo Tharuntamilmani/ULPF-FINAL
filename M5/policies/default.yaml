@@ -1,0 +1,47 @@
+version: "1.0"
+policies:
+  - id: critical-security-policy
+    priority: 100
+    description: "Route critical security alerts to SIEM, Data Lake, and AI stream"
+    when:
+      all:
+        - field: event.severity.value
+          operator: ">="
+          value: 4
+        - field: security.is_security_event
+          operator: "=="
+          value: true
+    destinations:
+      - siem
+      - data_lake
+      - ai_stream
+
+  - id: standard-audit-policy
+    priority: 50
+    description: "Route standard audit and authentication logs to SIEM and Data Lake"
+    when:
+      field: event.type
+      operator: "in"
+      value: ["auth", "authentication", "audit", "system"]
+    destinations:
+      - siem
+      - data_lake
+
+  - id: default-archive-policy
+    priority: 10
+    description: "Default fallback route to Data Lake for all events"
+    destinations:
+      - data_lake
+
+tenant_policies:
+  - tenant_id: tenant_alpha
+    policies:
+      - id: alpha-exclusive-ai
+        priority: 90
+        description: "Alpha tenant specific real-time AI telemetry feed"
+        when:
+          field: event.severity.value
+          operator: ">="
+          value: 3
+        destinations:
+          - ai_stream

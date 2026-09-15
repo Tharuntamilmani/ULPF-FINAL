@@ -1,0 +1,13 @@
+{
+  "format": "cef",
+  "fields": {
+    "device_vendor": "Imperva",
+    "device_product": "SecureSphere",
+    "signature_id": "DB_AUDIT",
+    "src": "10.0.0.10",
+    "dst": "10.0.0.20",
+    "spt": 49152,
+    "dpt": 1521,
+    "act": "permitted"
+  }
+}

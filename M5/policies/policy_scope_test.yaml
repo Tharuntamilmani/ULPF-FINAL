@@ -1,0 +1,5 @@
+policies:
+- id: rule_2
+  tenant_id: tenant-alpha
+  destinations:
+  - siem

@@ -1,0 +1,11 @@
+{
+  "format": "json",
+  "fields": {
+    "timestamp": "2026-09-12T04:00:15Z",
+    "event": "user_login",
+    "user.id": 42,
+    "user.name": "alice",
+    "network.src_ip": "10.0.0.5",
+    "network.dst_ip": "8.8.8.8"
+  }
+}

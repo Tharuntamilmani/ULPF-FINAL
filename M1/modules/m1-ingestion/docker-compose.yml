@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # ULPF M1 Ingestion Module Service
+  m1-ingestion:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ulpf-m1-ingestion
+    restart: unless-stopped
+    ports:
+      - "8000:8000"         # HTTP Ingestion & API
+      - "514:1514/udp"      # UDP Syslog Listener (host 514 -> unprivileged container 1514)
+      - "515:1515/tcp"      # TCP Syslog Listener (host 515 -> unprivileged container 1515)
+    environment:
+      - API_AUTH_TOKEN=secret-ingest-token-123
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - KAFKA_TOPIC_RAW=ulpf.raw
+      - KAFKA_TOPIC_DLQ=ulpf.dlq
+      - KAFKA_TOPIC_REPLAY=ulpf.replay
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET_RAW=ulpf-raw
+      - MINIO_SECURE=false
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8000
+      - UDP_PORT=1514
+      - TCP_PORT=1515
+      - MAX_EVENTS_PER_SECOND=1000
+      - BURST_SIZE=2000
+      - DEFAULT_TENANT_ID=demo-tenant
+      - DEFAULT_SOURCE_ID=collector-source-01
+    volumes:
+      - m1-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request, sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else 1)"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  # Apache Kafka (Single-node KRaft mode - No Zookeeper needed)
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: ulpf-kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_KEY_TREE_DIR: '/var/lib/kafka/data'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:29093,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MinIO Raw Vault Object Storage
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: ulpf-minio
+    ports:
+      - "9000:9000"       # MinIO S3 API
+      - "9001:9001"       # MinIO Web Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001" --with-lock
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # MinIO Bucket Auto-Initializer
+  minio-init:
+    image: quay.io/minio/mc:latest
+    container_name: ulpf-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb --with-lock myminio/ulpf-raw || true;
+      exit 0;
+      "
+
+volumes:
+  m1-data:
+  kafka-data:
+  minio-data:
+
+networks:
+  default:
+    name: ulpf-network

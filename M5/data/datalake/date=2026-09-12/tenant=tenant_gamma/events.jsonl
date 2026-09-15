@@ -1,0 +1,2 @@
+{"event": {"id": "evt_dod_ai_03", "type": "process", "severity": {"value": 3}}, "security": {"is_security_event": true}, "tenant_id": "tenant_gamma"}
+{"event": {"id": "evt_dod_ai_03", "type": "process", "severity": {"value": 3}}, "security": {"is_security_event": true}, "tenant_id": "tenant_gamma"}

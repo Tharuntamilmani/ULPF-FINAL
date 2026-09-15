@@ -1,0 +1,4 @@
+# file: E:\M4\app\providers\geoip_provider.py
+# hypothesis_version: 6.131.14
+
+[-122.4194, -122.0848, -70.7928, -27.4766, 0.0, 0.5, 0.92, 1.0, 6.1432, 37.4223, 37.7749, 42.1508, 46.2044, 153.0166, 13335, 15133, 15169, 36459, 64496, '1.0.0', '1.1.1.0/24', '185.199.108.0/22', '198.51.100.0/24', '8.8.8.0/24', '93.184.216.0/24', 'AU', 'Australia', 'CA', 'CH', 'Cloudflare Inc', 'Edgecast Inc', 'GE', 'Geneva', 'GitHub Inc', 'Google LLC', 'Internal', 'InvalidIPAddress', 'LAN', 'MA', 'Mountain View', 'Norwell', 'PRIVATE', 'Private Network', 'QLD', 'San Francisco', 'South Brisbane', 'Switzerland', 'US', 'United States', 'asn', 'city', 'country_code', 'country_name', 'geo', 'geoip-local-db', 'iana://rfc1918', 'latitude', 'longitude', 'number', 'organization', 'region']

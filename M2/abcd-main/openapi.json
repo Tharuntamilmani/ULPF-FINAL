@@ -1,0 +1,1046 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ULPF Member 2 \u2014 Format Classifier & Parser Engine",
+    "description": "Member 2 owns raw event format classification, parser lookup/execution, unknown-source discovery, Parser Studio APIs, and event replay.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Metrics",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parse": {
+      "post": {
+        "summary": "Parse Event",
+        "description": "Main M1 -> M2 Ingestion Entrypoint.\nClassifies RawEventEnvelope, executes matching parser, and outputs ParsedEvent.",
+        "operationId": "parse_event_v1_parse_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RawEventEnvelope"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedEvent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/discover": {
+      "post": {
+        "summary": "Discover Unknown Event",
+        "description": "Unknown-Source Discovery endpoint analyzing candidate fields and mapping suggestions.",
+        "operationId": "discover_unknown_event_v1_parsers_discover_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscoverRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/validate": {
+      "post": {
+        "summary": "Validate Parser",
+        "description": "Parser Studio Endpoint: Validates parser configuration and ReDoS safety.",
+        "operationId": "validate_parser_v1_parsers_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/test": {
+      "post": {
+        "summary": "Test Parser",
+        "description": "Parser Studio Endpoint: Dry-run test parser against sample raw event payloads.",
+        "operationId": "test_parser_v1_parsers_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/register": {
+      "post": {
+        "summary": "Register Parser",
+        "description": "Registers a new or updated parser in the registry.",
+        "operationId": "register_parser_v1_parsers_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParserDefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParserDefinition"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers": {
+      "get": {
+        "summary": "List Parsers",
+        "description": "Lists all active registered parsers.",
+        "operationId": "list_parsers_v1_parsers_get",
+        "parameters": [
+          {
+            "name": "vendor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Vendor"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Format"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParserDefinition"
+                  },
+                  "title": "Response List Parsers V1 Parsers Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/{parser_id}": {
+      "get": {
+        "summary": "Get Parser",
+        "description": "Retrieves specific parser definition.",
+        "operationId": "get_parser_v1_parsers__parser_id__get",
+        "parameters": [
+          {
+            "name": "parser_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Parser Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParserDefinition"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/{parser_id}/disable": {
+      "post": {
+        "summary": "Disable Parser",
+        "description": "Disables a parser version.",
+        "operationId": "disable_parser_v1_parsers__parser_id__disable_post",
+        "parameters": [
+          {
+            "name": "parser_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Parser Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/{parser_id}/enable": {
+      "post": {
+        "summary": "Enable Parser",
+        "description": "Enables a parser version.",
+        "operationId": "enable_parser_v1_parsers__parser_id__enable_post",
+        "parameters": [
+          {
+            "name": "parser_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Parser Id"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/parsers/{parser_id}/replay": {
+      "post": {
+        "summary": "Replay Events",
+        "description": "Replays raw events against specified parser version.",
+        "operationId": "replay_events_v1_parsers__parser_id__replay_post",
+        "parameters": [
+          {
+            "name": "parser_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Parser Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplayRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParsedEvent"
+                  },
+                  "title": "Response Replay Events V1 Parsers  Parser Id  Replay Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ClassificationResult": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Detected format: json, syslog, cef, leef, csv, xml, kv, plain_text"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor",
+            "description": "Detected vendor/source (Cisco, Fortinet, Palo Alto, Linux, etc.)",
+            "default": "Unknown"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product",
+            "description": "Detected product (ASA, FortiGate, PAN-OS, etc.)",
+            "default": "Unknown"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Classification confidence score (0.0 to 1.0)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "format",
+          "confidence"
+        ],
+        "title": "ClassificationResult"
+      },
+      "DiscoverRequest": {
+        "properties": {
+          "raw_event_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Event Id",
+            "default": "raw_unknown"
+          },
+          "payload": {
+            "type": "string",
+            "title": "Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "payload"
+        ],
+        "title": "DiscoverRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "MatchRule": {
+        "properties": {
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vendor"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Product"
+          },
+          "header_pattern": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Header Pattern"
+          }
+        },
+        "type": "object",
+        "title": "MatchRule"
+      },
+      "ParsedEvent": {
+        "properties": {
+          "raw_event_id": {
+            "type": "string",
+            "title": "Raw Event Id",
+            "description": "Reference ID matching RawEventEnvelope"
+          },
+          "classification": {
+            "$ref": "#/components/schemas/ClassificationResult",
+            "description": "Classification metadata from M2 format detector"
+          },
+          "parser": {
+            "$ref": "#/components/schemas/ParserInfo",
+            "description": "Parser metadata used for extraction"
+          },
+          "fields": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Fields",
+            "description": "Extracted source-specific structured fields"
+          },
+          "unmapped_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unmapped Fields",
+            "description": "Fields extracted but unmapped to standard keys"
+          },
+          "processing_time_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processing Time Ms",
+            "description": "Processing duration in milliseconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "raw_event_id",
+          "classification",
+          "parser"
+        ],
+        "title": "ParsedEvent",
+        "example": {
+          "classification": {
+            "confidence": 0.99,
+            "format": "syslog",
+            "product": "ASA",
+            "vendor": "Cisco"
+          },
+          "fields": {
+            "action": "allow",
+            "connection_id": "847392",
+            "dstip": "8.8.8.8",
+            "dstport": 443,
+            "message_id": "302013",
+            "srcip": "192.168.10.25",
+            "srcport": 51542,
+            "timestamp": "2026-09-12T04:00:15.123Z"
+          },
+          "parser": {
+            "confidence": 0.99,
+            "id": "parser-cisco-asa",
+            "name": "Cisco ASA Parser",
+            "version": "1.2.0"
+          },
+          "processing_time_ms": 0.45,
+          "raw_event_id": "raw_01JXYZ789",
+          "unmapped_fields": []
+        }
+      },
+      "ParserDefinition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique parser ID e.g. parser-cisco-asa"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Human readable name"
+          },
+          "vendor": {
+            "type": "string",
+            "title": "Vendor",
+            "description": "Vendor/Source e.g. Cisco",
+            "default": "Generic"
+          },
+          "product": {
+            "type": "string",
+            "title": "Product",
+            "description": "Product e.g. ASA",
+            "default": "Generic"
+          },
+          "formats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Formats",
+            "description": "Supported format list"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Semantic parser version",
+            "default": "1.0.0"
+          },
+          "mapping_version": {
+            "type": "string",
+            "title": "Mapping Version",
+            "description": "Mapping configuration version",
+            "default": "1.0.0"
+          },
+          "priority": {
+            "type": "integer",
+            "title": "Priority",
+            "description": "Priority rank (lower or higher priority lookup)",
+            "default": 100
+          },
+          "status": {
+            "$ref": "#/components/schemas/ParserStatus",
+            "description": "Current parser operational status",
+            "default": "active"
+          },
+          "match": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchRule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "patterns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Patterns",
+            "description": "List of grok or regex patterns"
+          },
+          "custom_patterns": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Custom Patterns",
+            "description": "Custom pattern macros"
+          },
+          "fields": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Fields",
+            "description": "Extracted field mappings"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "created_by": {
+            "type": "string",
+            "title": "Created By",
+            "description": "Author or system identifier",
+            "default": "system"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ParserDefinition"
+      },
+      "ParserInfo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Registered parser ID"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Human-readable parser name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Semantic version of parser"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Parser execution confidence score",
+            "default": 1.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "version"
+        ],
+        "title": "ParserInfo"
+      },
+      "ParserStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "disabled",
+          "deprecated"
+        ],
+        "title": "ParserStatus"
+      },
+      "RawEventEnvelope": {
+        "properties": {
+          "raw_event_id": {
+            "type": "string",
+            "title": "Raw Event Id",
+            "description": "Unique identifier for raw event assigned by M1"
+          },
+          "payload": {
+            "type": "string",
+            "title": "Payload",
+            "description": "Raw untouched log text/string payload"
+          },
+          "received_at": {
+            "type": "string",
+            "title": "Received At",
+            "description": "ISO8601 timestamp when event was ingested by M1"
+          },
+          "source_ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ip",
+            "description": "IP address of source device or collector"
+          },
+          "protocol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protocol",
+            "description": "Ingestion protocol (syslog, http, kafka, etc.)"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Metadata key-values from M1"
+          }
+        },
+        "type": "object",
+        "required": [
+          "raw_event_id",
+          "payload"
+        ],
+        "title": "RawEventEnvelope",
+        "example": {
+          "metadata": {
+            "facility": 23,
+            "severity": 5
+          },
+          "payload": "<189>Sep 12 04:00:15 cisco-asa %ASA-6-302013: Built inbound TCP connection 847392 for outside:192.168.10.25/51542 to inside:8.8.8.8/443",
+          "protocol": "syslog",
+          "raw_event_id": "raw_01JXYZ789",
+          "received_at": "2026-09-12T04:00:15.123Z",
+          "source_ip": "192.168.1.1"
+        }
+      },
+      "ReplayRequest": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RawEventEnvelope"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events"
+        ],
+        "title": "ReplayRequest"
+      },
+      "TestRequest": {
+        "properties": {
+          "parser_definition": {
+            "$ref": "#/components/schemas/ParserDefinition"
+          },
+          "sample_raw_events": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sample Raw Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "parser_definition",
+          "sample_raw_events"
+        ],
+        "title": "TestRequest"
+      },
+      "ValidateRequest": {
+        "properties": {
+          "parser_config": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Parser Config"
+          }
+        },
+        "type": "object",
+        "required": [
+          "parser_config"
+        ],
+        "title": "ValidateRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

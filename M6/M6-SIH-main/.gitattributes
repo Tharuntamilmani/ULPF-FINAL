@@ -1,0 +1,17 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Shell scripts must always have LF
+*.sh text eol=lf
+
+# Windows-specific files
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files
+*.tar binary
+*.gz  binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.ico binary

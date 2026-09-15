@@ -1,0 +1,4 @@
+policies:
+- id: p1
+  destinations:
+  - siem

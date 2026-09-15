@@ -1,0 +1,4 @@
+# file: E:\M4\app\models\common.py
+# hypothesis_version: 6.131.14
+
+['BYPASS', 'FAILED', 'HIT', 'MISS', 'NOT_FOUND', 'PARTIAL', 'SKIPPED', 'SUCCESS', 'TIMEOUT', 'active', 'admin', 'analyst_read', 'deprecated', 'draft', 'event_processing', 'rfc8785', 'rolled_back', 'sha256']

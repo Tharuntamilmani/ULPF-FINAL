@@ -1,0 +1,12 @@
+{
+  "format": "leef",
+  "fields": {
+    "vendor": "IBM",
+    "product": "QRadar",
+    "event_id": "AuthEvent",
+    "src": "192.168.100.5",
+    "dst": "10.0.0.1",
+    "usr": "admin",
+    "action": "allow"
+  }
+}

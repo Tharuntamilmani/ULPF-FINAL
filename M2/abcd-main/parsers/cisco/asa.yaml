@@ -1,0 +1,30 @@
+parser:
+  id: parser-cisco-asa
+  name: Cisco ASA Firewall Syslog Parser
+  version: 1.2.0
+  mapping_version: 1.0.0
+  priority: 10
+  status: active
+
+match:
+  vendor: Cisco
+  product: ASA
+  formats:
+    - syslog
+
+patterns:
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:syslog_timestamp}\\s+%{NOTSPACE:hostname}\\s+%ASA-%{INT:facility}-%{INT:message_id}:\\s+Built\\s+(?:inbound|outbound)\\s+(?P<protocol>TCP|UDP)\\s+connection\\s+%{INT:connection_id}\\s+for\\s+(?P<src_zone>\\w+):%{IP:srcip}/%{INT:srcport}\\s+\\(%{IP:src_mapped_ip}/%{INT:src_mapped_port}\\)\\s+to\\s+(?P<dst_zone>\\w+):%{IP:dstip}/%{INT:dstport}"
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:syslog_timestamp}\\s+%{NOTSPACE:hostname}\\s+%ASA-%{INT:facility}-%{INT:message_id}:\\s+Built\\s+(?:inbound|outbound)\\s+(?P<protocol>TCP|UDP)\\s+connection\\s+%{INT:connection_id}\\s+for\\s+(?P<src_zone>\\w+):%{IP:srcip}/%{INT:srcport}\\s+to\\s+(?P<dst_zone>\\w+):%{IP:dstip}/%{INT:dstport}"
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:syslog_timestamp}\\s+%{NOTSPACE:hostname}\\s+%ASA-%{INT:facility}-%{INT:message_id}:\\s+Teardown\\s+(?P<protocol>TCP|UDP)\\s+connection\\s+%{INT:connection_id}\\s+for\\s+(?P<src_zone>\\w+):%{IP:srcip}/%{INT:srcport}\\s+to\\s+(?P<dst_zone>\\w+):%{IP:dstip}/%{INT:dstport}\\s+duration\\s+(?P<duration>[0-9:]+)\\s+bytes\\s+%{INT:bytes_transferred}"
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:syslog_timestamp}\\s+%{NOTSPACE:hostname}\\s+%ASA-%{INT:facility}-%{INT:message_id}:\\s+Deny\\s+(?P<protocol>IP|TCP|UDP)\\s+src\\s+(?P<src_zone>\\w+):%{IP:srcip}/%{INT:srcport}\\s+dst\\s+(?P<dst_zone>\\w+):%{IP:dstip}/%{INT:dstport}"
+
+fields:
+  syslog_timestamp: timestamp
+  srcip: srcip
+  dstip: dstip
+  srcport: srcport
+  dstport: dstport
+  message_id: message_id
+  connection_id: connection_id
+  protocol: protocol
+  action: action

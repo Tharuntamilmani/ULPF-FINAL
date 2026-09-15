@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ulpf.local/schemas/v1/config_event.schema.json",
+  "title": "ULPF Configuration Distribution Event",
+  "description": "Canonical contract for configuration events pushed from M6 to downstream modules (M1-M5).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "distribution_id",
+    "config_type",
+    "version",
+    "operation",
+    "payload",
+    "timestamp",
+    "correlation_id"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "distribution_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "config_type": {
+      "type": "string",
+      "enum": ["sources", "parsers", "schemas", "mappings", "policies"]
+    },
+    "entity_id": {
+      "type": ["string", "null"]
+    },
+    "version": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": ["string", "null"]
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "CREATE",
+        "UPDATE",
+        "DELETE",
+        "ENABLE",
+        "DISABLE",
+        "ACTIVATE",
+        "ROLLBACK",
+        "SYNC"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlation_id": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

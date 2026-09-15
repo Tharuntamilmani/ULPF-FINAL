@@ -1,0 +1,12 @@
+parser:
+  id: parser-generic-json
+  name: Generic JSON Parser
+  version: 1.0.0
+  priority: 100
+  status: active
+
+match:
+  vendor: Generic
+  product: JSON
+  formats:
+    - json

@@ -1,0 +1,11 @@
+{
+  "format": "kv",
+  "fields": {
+    "device": "ACME-FW-01",
+    "src_addr": "10.0.0.5",
+    "dst_addr": "8.8.8.8",
+    "src_prt": 51234,
+    "dst_prt": 443,
+    "decision": "permit"
+  }
+}

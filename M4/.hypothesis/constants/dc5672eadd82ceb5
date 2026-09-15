@@ -1,0 +1,4 @@
+# file: E:\M4\app\api\security.py
+# hypothesis_version: 6.131.14
+
+['*', 'X-API-Key', 'm4-admin-key', 'm4-analyst-key', 'm4-tenant-alpha-key', 'tenant_alpha']

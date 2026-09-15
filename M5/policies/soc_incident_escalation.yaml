@@ -1,0 +1,7 @@
+policies:
+- id: soc_incident_escalation_v3
+  tenant_id: tenant-soc
+  priority: 999
+  destinations:
+  - soc_high_priority
+  - ai_stream

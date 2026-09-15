@@ -1,0 +1,3 @@
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-12T15:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-12T15:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}

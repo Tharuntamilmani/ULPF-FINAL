@@ -1,0 +1,26 @@
+parser:
+  id: parser-paloalto-panos
+  name: Palo Alto PAN-OS CSV Parser
+  version: 1.0.0
+  mapping_version: 1.0.0
+  priority: 15
+  status: active
+
+match:
+  vendor: Palo Alto
+  product: PAN-OS
+  formats:
+    - csv
+    - syslog
+
+patterns:
+  - "^(?:<\\d+>)?%{SYSLOGTIMESTAMP:syslog_timestamp}\\s+%{NOTSPACE:hostname}\\s+1,%{NOTSPACE:generate_time},%{NOTSPACE:serial_number},%{NOTSPACE:type},%{NOTSPACE:subtype},%{INT:config_ver},%{NOTSPACE:time_generated},%{IP:srcip},%{IP:dstip},%{IP:natsrc},%{IP:natdst},%{NOTSPACE:rule_name},%{NOTSPACE:srcuser},%{NOTSPACE:dstuser},%{NOTSPACE:app},%{NOTSPACE:vsys},%{NOTSPACE:from_zone},%{NOTSPACE:to_zone},%{NOTSPACE:inbound_if},%{NOTSPACE:outbound_if},%{NOTSPACE:log_action},%{INT:session_id},%{INT:repeat_cnt},%{INT:srcport},%{INT:dstport},%{INT:natsrcport},%{INT:natdstport},%{NOTSPACE:flags},%{NOTSPACE:protocol},%{NOTSPACE:action}"
+
+fields:
+  srcip: srcip
+  dstip: dstip
+  srcport: srcport
+  dstport: dstport
+  action: action
+  protocol: protocol
+  rule_name: rule_name

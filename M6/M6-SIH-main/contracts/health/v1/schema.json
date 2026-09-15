@@ -1,0 +1,37 @@
+{
+  "$id": "ulpf:contracts:health:v1",
+  "title": "HealthResponse",
+  "description": "Standard health response all M1-M5 services must expose at GET /health.",
+  "type": "object",
+  "required": [
+    "service",
+    "status"
+  ],
+  "properties": {
+    "service": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "HEALTHY",
+        "DEGRADED",
+        "UNHEALTHY",
+        "UNAVAILABLE",
+        "UNKNOWN"
+      ]
+    },
+    "version": {
+      "type": "string"
+    },
+    "uptime_seconds": {
+      "type": "number"
+    },
+    "checks": {
+      "type": "object"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  }
+}

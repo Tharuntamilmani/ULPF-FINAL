@@ -1,0 +1,107 @@
+{
+  "$id": "ulpf:contracts:ues:v2.0.0",
+  "title": "UniversalEventSchema v2.0.0",
+  "description": "UES v2.0.0 \u2014 breaking change: event.severity is now required; adds geo field.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "tenant_id",
+    "timestamp",
+    "event",
+    "schema_version"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "2.0.0"
+    },
+    "event": {
+      "type": "object",
+      "required": [
+        "category",
+        "action",
+        "severity"
+      ],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object"
+    },
+    "destination": {
+      "type": "object"
+    },
+    "network": {
+      "type": "object"
+    },
+    "security": {
+      "type": "object"
+    },
+    "observer": {
+      "type": "object"
+    },
+    "user": {
+      "type": "object"
+    },
+    "process": {
+      "type": "object"
+    },
+    "geo": {
+      "type": "object",
+      "properties": {
+        "source_country": {
+          "type": "string"
+        },
+        "destination_country": {
+          "type": "string"
+        }
+      }
+    },
+    "raw_ref": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "labels": {
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ulpf.local/schemas/v1/config_ack.schema.json",
+  "title": "ULPF Configuration Acknowledgement",
+  "description": "Canonical contract for downstream module acknowledgements sent back to M6.",
+  "type": "object",
+  "required": [
+    "distribution_id",
+    "config_id",
+    "version",
+    "module",
+    "status",
+    "timestamp",
+    "correlation_id"
+  ],
+  "properties": {
+    "distribution_id": {
+      "type": "string"
+    },
+    "config_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string",
+      "enum": ["M1", "M2", "M3", "M4", "M5"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["APPLIED", "REJECTED", "FAILED"]
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "error": {
+      "type": ["string", "null"]
+    }
+  },
+  "additionalProperties": false
+}

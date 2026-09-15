@@ -1,0 +1,35 @@
+{
+  "$id": "ulpf:contracts:replay:v1",
+  "title": "ReplayRequest",
+  "description": "Kafka message published by M6 on ulpf.replay topic.",
+  "type": "object",
+  "required": [
+    "replay_id",
+    "event_id",
+    "requested_by",
+    "requested_at"
+  ],
+  "properties": {
+    "replay_id": {
+      "type": "string"
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "requested_by": {
+      "type": "string"
+    },
+    "requested_at": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  }
+}

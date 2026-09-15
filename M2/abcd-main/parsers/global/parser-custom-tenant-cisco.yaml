@@ -1,0 +1,10 @@
+id: parser-custom-tenant-cisco
+name: Tenant Cisco Custom Parser
+tenant_id: tenant-cisco
+vendor: CustomCorp
+product: AppServer
+formats:
+- syslog
+patterns:
+- ^APP_LOG user=%{WORD:user} latency=%{INT:latency_ms}
+version: 1.0.0

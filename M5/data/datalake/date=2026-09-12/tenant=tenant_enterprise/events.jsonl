@@ -1,0 +1,2 @@
+{"event": {"id": "evt_dod_multi_04", "type": "network", "severity": {"value": 4}}, "security": {"is_security_event": true}, "tenant_id": "tenant_enterprise"}
+{"event": {"id": "evt_dod_multi_04", "type": "network", "severity": {"value": 4}}, "security": {"is_security_event": true}, "tenant_id": "tenant_enterprise"}

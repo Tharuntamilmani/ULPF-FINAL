@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ulpf.local/schemas/m4/canonical_ues_v1.json",
+  "title": "CanonicalUESv1",
+  "description": "Standalone Canonical UES v1 Event Contract for ULPF M4",
+  "type": "object",
+  "required": ["schema_version", "event", "provenance"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "ues.v1"
+    },
+    "event": {
+      "type": "object",
+      "required": ["id", "timestamp"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-zA-Z0-9_\\-\\.]+$" },
+        "timestamp": { "type": "string" },
+        "kind": { "type": "string" },
+        "type": { "type": "array", "items": { "type": "string" } },
+        "category": { "type": "array", "items": { "type": "string" } },
+        "outcome": { "type": "string" },
+        "duration": { "type": ["integer", "null"] }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["raw_event_id"],
+      "properties": {
+        "raw_event_id": { "type": "string" },
+        "ingestion_timestamp": { "type": "string" },
+        "pipeline_id": { "type": "string" }
+      }
+    },
+    "source": { "type": "object" },
+    "destination": { "type": "object" },
+    "network": { "type": "object" },
+    "host": { "type": "object" },
+    "identity": { "type": "object" },
+    "application": { "type": "object" },
+    "process": { "type": "object" },
+    "security": { "type": "object" },
+    "parser": { "type": "object" },
+    "normalization": { "type": "object" },
+    "integrity": { "type": ["object", "null"] },
+    "raw": { "type": ["string", "null"] },
+    "vendor": { "type": "object" },
+    "extensions": { "type": "object" },
+    "tenant": {
+      "type": "object",
+      "required": ["tenant_id"],
+      "properties": {
+        "tenant_id": { "type": "string" }
+      }
+    }
+  }
+}

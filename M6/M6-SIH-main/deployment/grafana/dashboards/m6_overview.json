@@ -1,0 +1,44 @@
+{
+  "title": "ULPF M6 Control Plane",
+  "uid": "m6-overview",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "M6 API Requests Total",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+      "targets": [{"expr": "sum(ulpf_m6_api_requests_total)", "legendFormat": "Total"}]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Config Version",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "targets": [{"expr": "ulpf_m6_config_version", "legendFormat": "Version"}]
+    },
+    {
+      "id": 3, "type": "stat", "title": "PostgreSQL Health",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "targets": [{"expr": "ulpf_m6_postgres_health", "legendFormat": "PG"}]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Redis Health",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "targets": [{"expr": "ulpf_m6_redis_health", "legendFormat": "Redis"}]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "API Request Rate",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "targets": [{"expr": "rate(ulpf_m6_api_requests_total[5m])", "legendFormat": "{{method}} {{endpoint}}"}]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "API Latency p95",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "targets": [{"expr": "histogram_quantile(0.95, rate(ulpf_m6_api_request_latency_seconds_bucket[5m]))", "legendFormat": "p95"}]
+    },
+    {
+      "id": 7, "type": "table", "title": "Service Health Status",
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+      "targets": [{"expr": "ulpf_m6_service_health_status", "legendFormat": "{{service}}"}]
+    }
+  ]
+}

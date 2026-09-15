@@ -1,0 +1,101 @@
+name: M6 Integration Tests (optional — requires external services)
+
+# Run manually or when M1-M5 services are available in the environment.
+# This workflow does NOT run automatically on push/PR.
+# It is triggered manually or by a downstream workflow that sets up M1-M5.
+on:
+  workflow_dispatch:
+    inputs:
+      m1_url:
+        description: "M1 Ingestion base URL (leave empty to skip)"
+        required: false
+        default: ""
+      m2_url:
+        description: "M2 Parser base URL (leave empty to skip)"
+        required: false
+        default: ""
+      m3_url:
+        description: "M3 Normalizer base URL (leave empty to skip)"
+        required: false
+        default: ""
+      m4_url:
+        description: "M4 Enrichment base URL (leave empty to skip)"
+        required: false
+        default: ""
+      m5_url:
+        description: "M5 Delivery base URL (leave empty to skip)"
+        required: false
+        default: ""
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  integration:
+    name: External Service Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: m6_test
+          POSTGRES_USER: m6user
+          POSTGRES_PASSWORD: testpassword
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run migrations
+        run: |
+          cd backend
+          alembic upgrade head
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_DB: m6_test
+          POSTGRES_USER: m6user
+          POSTGRES_PASSWORD: testpassword
+          SECRET_KEY: integration-test-secret-key-32ch
+          ADMIN_PASSWORD: IntAdmin@123
+
+      - name: Run integration tests
+        run: |
+          python -m pytest tests/integration/ -v --tb=short
+        env:
+          USE_MOCK_ADAPTERS: "false"
+          M1_BASE_URL: ${{ github.event.inputs.m1_url }}
+          M2_BASE_URL: ${{ github.event.inputs.m2_url }}
+          M3_BASE_URL: ${{ github.event.inputs.m3_url }}
+          M4_BASE_URL: ${{ github.event.inputs.m4_url }}
+          M5_BASE_URL: ${{ github.event.inputs.m5_url }}
+          POSTGRES_HOST: localhost
+          POSTGRES_DB: m6_test
+          POSTGRES_USER: m6user
+          POSTGRES_PASSWORD: testpassword
+          REDIS_HOST: localhost
+          SECRET_KEY: integration-test-secret-key-32ch
+          ADMIN_PASSWORD: IntAdmin@123
+          KAFKA_ENABLED: "false"

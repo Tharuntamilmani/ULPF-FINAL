@@ -1,0 +1,103 @@
+{
+  "$id": "ulpf:contracts:enrichment:v1",
+  "title": "EnrichedUES",
+  "description": "M4 output / M5 input contract.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "tenant_id",
+    "timestamp",
+    "event",
+    "enrichment"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "event": {
+      "type": "object"
+    },
+    "source": {
+      "type": "object"
+    },
+    "destination": {
+      "type": "object"
+    },
+    "network": {
+      "type": "object"
+    },
+    "security": {
+      "type": "object"
+    },
+    "enrichment": {
+      "type": "object",
+      "properties": {
+        "threat_intel": {
+          "type": "object",
+          "properties": {
+            "is_known_bad_ip": {
+              "type": "boolean"
+            },
+            "threat_categories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "confidence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "geo": {
+          "type": "object",
+          "properties": {
+            "source_city": {
+              "type": "string"
+            },
+            "source_country": {
+              "type": "string"
+            },
+            "source_lat": {
+              "type": "number"
+            },
+            "source_lon": {
+              "type": "number"
+            }
+          }
+        },
+        "asset": {
+          "type": "object",
+          "properties": {
+            "hostname": {
+              "type": "string"
+            },
+            "owner": {
+              "type": "string"
+            },
+            "criticality": {
+              "type": "string"
+            }
+          }
+        },
+        "enriched_at": {
+          "type": "string"
+        },
+        "enricher_id": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

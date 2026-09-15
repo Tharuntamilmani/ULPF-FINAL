@@ -1,0 +1,20 @@
+{
+  "format": "syslog",
+  "vendor": "Cisco",
+  "product": "ASA",
+  "parser_id": "parser-cisco-asa",
+  "fields": {
+    "timestamp": "Sep 12 04:00:15",
+    "hostname": "cisco-asa",
+    "facility": 6,
+    "message_id": 302013,
+    "connection_id": 847392,
+    "src_zone": "outside",
+    "srcip": "192.168.10.25",
+    "srcport": 51542,
+    "dst_zone": "inside",
+    "dstip": "8.8.8.8",
+    "dstport": 443,
+    "protocol": "TCP"
+  }
+}

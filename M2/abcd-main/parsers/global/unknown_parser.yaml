@@ -1,0 +1,4 @@
+parser_name: cisco_asa_network_v1
+format_type: syslog
+pattern: '^<(?P<pri>\d+)>(?P<timestamp>[^:]+): %(?P<tag>[A-Z0-9_\-]+): (?P<msg>.*)$'
+version: 1.0.0

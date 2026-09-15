@@ -1,0 +1,10 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+RUN pip install --no-cache-dir aiokafka httpx pydantic structlog pyyaml
+
+COPY integration /app/integration
+
+ENV PYTHONPATH=/app
+
+CMD ["python", "-c", "import asyncio; from integration.consumers.m1_raw_consumer import M1RawEventConsumer; consumer = M1RawEventConsumer(); asyncio.run(consumer.start())"]

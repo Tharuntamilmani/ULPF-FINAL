@@ -1,0 +1,71 @@
+{
+  "$id": "ulpf:contracts:raw_event:v1",
+  "title": "RawEventEnvelope",
+  "description": "M1 output / M2 input contract. M6 distributes; never processes events.",
+  "type": "object",
+  "required": [
+    "envelope_id",
+    "source_id",
+    "tenant_id",
+    "received_at",
+    "transport",
+    "raw_payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "envelope_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tenant_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "received_at": {
+      "type": "string"
+    },
+    "transport": {
+      "type": "string",
+      "enum": [
+        "udp",
+        "tcp",
+        "http",
+        "https",
+        "file",
+        "kafka"
+      ]
+    },
+    "protocol": {
+      "type": "string"
+    },
+    "parser_id": {
+      "type": "string"
+    },
+    "raw_payload": {
+      "type": "string"
+    },
+    "encoding": {
+      "type": "string",
+      "default": "utf-8"
+    },
+    "byte_size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "collector_id": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "metadata": {
+      "type": "object"
+    }
+  }
+}

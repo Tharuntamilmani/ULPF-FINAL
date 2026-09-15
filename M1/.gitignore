@@ -1,0 +1,39 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Packaging & Distribution
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Docker & local data volumes
+data/
+minio-data/
+kafka-data/
+kraft-combined-logs/
+/tmp/kraft-combined-logs/
+
+# IDEs & System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

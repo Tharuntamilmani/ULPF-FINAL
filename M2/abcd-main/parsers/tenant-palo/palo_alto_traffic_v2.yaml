@@ -1,0 +1,5 @@
+id: palo_alto_traffic_v2
+vendor: PaloAlto
+product: PAN-OS
+pattern: ^TRAFFIC,(?P<src_ip>\d+\.\d+\.\d+\.\d+),(?P<dst_ip>\d+\.\d+\.\d+\.\d+)$
+test_sample: TRAFFIC,10.1.1.5,192.168.1.1

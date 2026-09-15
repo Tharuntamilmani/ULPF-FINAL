@@ -1,0 +1,56 @@
+{
+  "$id": "ulpf:contracts:routing:v1",
+  "title": "RoutingConfig",
+  "description": "Policy config distributed by M6 to M5 via Redis.",
+  "type": "object",
+  "required": [
+    "policy_id",
+    "version",
+    "conditions",
+    "destinations"
+  ],
+  "properties": {
+    "policy_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "is_enabled": {
+      "type": "boolean"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          },
+          "value": {}
+        }
+      }
+    },
+    "destinations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g. siem, data_lake, ai_stream"
+    }
+  }
+}

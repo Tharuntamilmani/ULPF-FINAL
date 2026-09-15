@@ -1,0 +1,60 @@
+{
+  "$id": "ulpf:contracts:audit:v1",
+  "title": "AuditEvent",
+  "description": "Audit log entry structure for all M6 administrative actions.",
+  "type": "object",
+  "required": [
+    "id",
+    "timestamp",
+    "actor",
+    "action",
+    "resource_type",
+    "result"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "actor_role": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "resource_type": {
+      "type": "string"
+    },
+    "resource_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "before_state": {
+      "type": "object"
+    },
+    "after_state": {
+      "type": "object"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "SUCCESS",
+        "FAILURE",
+        "PARTIAL"
+      ]
+    },
+    "request_id": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "$id": "ulpf:contracts:ues:v1.0.0",
+  "title": "UniversalEventSchema v1.0.0",
+  "description": "M3 output / M4 input contract. Normalised event format.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "tenant_id",
+    "timestamp",
+    "event"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "event": {
+      "type": "object",
+      "required": [
+        "category",
+        "action"
+      ],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "success",
+            "failure",
+            "unknown"
+          ]
+        },
+        "severity": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "value": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "host": {
+          "type": "string"
+        }
+      }
+    },
+    "destination": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer"
+        },
+        "host": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "type": "string"
+        },
+        "transport": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "bytes": {
+          "type": "integer"
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "is_security_event": {
+          "type": "boolean"
+        },
+        "threat_indicators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "observer": {
+      "type": "object",
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "parser_id": {
+          "type": "string"
+        },
+        "vendor": {
+          "type": "string"
+        },
+        "product": {
+          "type": "string"
+        }
+      }
+    },
+    "raw_ref": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "labels": {
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,256 @@
+version: "3.8"
+
+networks:
+  ulpf-net:
+    driver: bridge
+
+volumes:
+  minio-data:
+  postgres-data:
+  opensearch-data:
+  redis-data:
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # CORE INFRASTRUCTURE
+  # ─────────────────────────────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: ulpf-zookeeper
+    networks:
+      - ulpf-net
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: ulpf-kafka
+    networks:
+      - ulpf-net
+    ports:
+      - "${KAFKA_HOST_PORT:-9092}:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:${KAFKA_HOST_PORT:-9092}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  minio:
+    image: minio/minio:latest
+    container_name: ulpf-minio
+    networks:
+      - ulpf-net
+    ports:
+      - "9000:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadminsecret}
+    command: server /data --console-address ":9001"
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ulpf-postgres
+    networks:
+      - ulpf-net
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ulpf_m6}
+      POSTGRES_USER: ${POSTGRES_USER:-ulpf_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ulpf_secure_password}
+
+  redis:
+    image: redis:7-alpine
+    container_name: ulpf-redis
+    networks:
+      - ulpf-net
+    ports:
+      - "${REDIS_HOST_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: ulpf-opensearch
+    networks:
+      - ulpf-net
+    ports:
+      - "${OPENSEARCH_HOST_PORT:-9200}:9200"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    environment:
+      discovery.type: single-node
+      plugins.security.disabled: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+
+  # ─────────────────────────────────────────────────────────────
+  # ULPF MODULES (M1 - M6)
+  # ─────────────────────────────────────────────────────────────
+  m1:
+    build:
+      context: ../../M1/modules/m1-ingestion
+      dockerfile: Dockerfile
+    container_name: ulpf-m1
+    networks:
+      - ulpf-net
+    ports:
+      - "${M1_HOST_PORT:-8001}:8000"
+      - "514:514/udp"
+      - "515:515/tcp"
+    depends_on:
+      - kafka
+      - minio
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadminsecret}
+      AUTH_TOKEN: ${M1_INTERNAL_TOKEN:-sec-m1-token-sysadmin-9901}
+
+  m2:
+    build:
+      context: ../../M2/abcd-main
+      dockerfile: Dockerfile
+    container_name: ulpf-m2
+    networks:
+      - ulpf-net
+    ports:
+      - "${M2_HOST_PORT:-8082}:8000"
+
+  m3:
+    build:
+      context: ../../M3
+      dockerfile: Dockerfile
+    container_name: ulpf-m3
+    networks:
+      - ulpf-net
+    ports:
+      - "${M3_HOST_PORT:-8083}:8000"
+      - "${M3_UI_HOST_PORT:-5174}:5173"
+
+  m4:
+    build:
+      context: ../../M4
+      dockerfile: Dockerfile
+    container_name: ulpf-m4
+    networks:
+      - ulpf-net
+    ports:
+      - "${M4_HOST_PORT:-8004}:8000"
+
+  m5:
+    build:
+      context: ../../M5
+      dockerfile: Dockerfile
+    container_name: ulpf-m5
+    networks:
+      - ulpf-net
+    ports:
+      - "${M5_HOST_PORT:-8085}:8000"
+    depends_on:
+      - opensearch
+    environment:
+      OPENSEARCH_HOST: opensearch
+      OPENSEARCH_PORT: 9200
+
+  m6:
+    build:
+      context: ../../M6/M6-SIH-main
+      dockerfile: Dockerfile
+    container_name: ulpf-m6
+    networks:
+      - ulpf-net
+    ports:
+      - "${M6_HOST_PORT:-8086}:8000"
+      - "${M6_UI_HOST_PORT:-5173}:5173"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-ulpf_admin}:${POSTGRES_PASSWORD:-ulpf_secure_password}@postgres:5432/${POSTGRES_DB:-ulpf_m6}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      M1_BASE_URL: http://config-sync:8081/config/apply/M1
+      M2_BASE_URL: http://config-sync:8081/config/apply/M2
+      M3_BASE_URL: http://config-sync:8081/config/apply/M3
+      M4_BASE_URL: http://config-sync:8081/config/apply/M4
+      M5_BASE_URL: http://config-sync:8081/config/apply/M5
+
+  # ─────────────────────────────────────────────────────────────
+  # ULPF INTEGRATION LAYER SERVICES
+  # ─────────────────────────────────────────────────────────────
+  ingress-gateway:
+    build:
+      context: ../../
+      dockerfile: integration/deployment/Dockerfile.gateway
+    container_name: ulpf-ingress-gateway
+    networks:
+      - ulpf-net
+    ports:
+      - "${GATEWAY_HOST_PORT:-8080}:8080"
+    depends_on:
+      - m1
+    environment:
+      M1_INTERNAL_URL: http://m1:8000
+      M1_INTERNAL_TOKEN: ${M1_INTERNAL_TOKEN:-sec-m1-token-sysadmin-9901}
+
+  m1-m2-consumer-bridge:
+    build:
+      context: ../../
+      dockerfile: integration/deployment/Dockerfile.consumer
+    container_name: ulpf-consumer-bridge
+    networks:
+      - ulpf-net
+    depends_on:
+      - kafka
+      - m2
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      M2_BASE_URL: http://m2:8000
+      M2_AUTH_TOKEN: ${M2_SERVICE_TOKEN:-system-admin-token}
+
+  config-sync:
+    build:
+      context: ../../
+      dockerfile: integration/deployment/Dockerfile.config_sync
+    container_name: ulpf-config-sync
+    networks:
+      - ulpf-net
+    ports:
+      - "${CONFIG_SYNC_HOST_PORT:-8081}:8081"
+    environment:
+      M1_BASE_URL: http://m1:8000
+      M2_BASE_URL: http://m2:8000
+      M3_BASE_URL: http://m3:8000
+      M4_BASE_URL: http://m4:8000
+      M5_BASE_URL: http://m5:8000
+
+  health-aggregator:
+    build:
+      context: ../../
+      dockerfile: integration/deployment/Dockerfile.health
+    container_name: ulpf-health-aggregator
+    networks:
+      - ulpf-net
+    ports:
+      - "${HEALTH_HOST_PORT:-8090}:8090"
+    environment:
+      M1_URL: http://m1:8000
+      M2_URL: http://m2:8000
+      M3_URL: http://m3:8000
+      M4_URL: http://m4:8000
+      M5_URL: http://m5:8000
+      M6_URL: http://m6:8000
+      GATEWAY_URL: http://ingress-gateway:8080
+      CONFIG_SYNC_URL: http://config-sync:8081

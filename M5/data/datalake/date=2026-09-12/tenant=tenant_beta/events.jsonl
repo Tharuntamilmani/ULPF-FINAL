@@ -1,0 +1,3 @@
+{"event": {"id": "evt_dod_lake_02", "type": "network", "severity": {"value": 2}}, "tenant_id": "tenant_beta"}
+{"event": {"id": "evt_dod_lake_02", "type": "network", "severity": {"value": 2}}, "tenant_id": "tenant_beta"}
+{"event": {"id": "evt_sec_beta_20", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_beta"}

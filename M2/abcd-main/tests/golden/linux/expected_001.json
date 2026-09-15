@@ -1,0 +1,12 @@
+{
+  "format": "syslog",
+  "vendor": "Linux",
+  "product": "Syslog",
+  "fields": {
+    "hostname": "ubuntu",
+    "user": "root",
+    "srcip": "192.168.1.100",
+    "srcport": 54321,
+    "auth_method": "password"
+  }
+}

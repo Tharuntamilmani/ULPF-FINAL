@@ -1,0 +1,34 @@
+{
+  "$id": "ulpf:contracts:configuration:v1",
+  "title": "ConfigurationUpdate",
+  "description": "Kafka message published by M6 on ulpf.m6.config.updates.",
+  "type": "object",
+  "required": [
+    "event",
+    "config_key",
+    "version",
+    "timestamp"
+  ],
+  "properties": {
+    "event": {
+      "type": "string",
+      "const": "config_updated"
+    },
+    "config_key": {
+      "type": "string",
+      "enum": [
+        "sources",
+        "parsers",
+        "schemas",
+        "mappings",
+        "policies"
+      ]
+    },
+    "version": {
+      "type": "integer"
+    },
+    "timestamp": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-13T10:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_lake_02", "timestamp": "2026-09-13T10:05:00Z", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_ai_03", "type": "metric_stream", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_idem_06", "type": "system", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-13T10:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_lake_02", "timestamp": "2026-09-13T10:05:00Z", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_ai_03", "type": "metric_stream", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_idem_06", "type": "system", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t01_siem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t02_lake", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t03_ai", "type": "telemetry", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t14_idem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t19", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t20", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-13T10:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_lake_02", "timestamp": "2026-09-13T10:05:00Z", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_ai_03", "type": "metric_stream", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_idem_06", "type": "system", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-13T10:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_lake_02", "timestamp": "2026-09-13T10:05:00Z", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_ai_03", "type": "metric_stream", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_idem_06", "type": "system", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t01_siem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t02_lake", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t03_ai", "type": "telemetry", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t14_idem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t19", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t20", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_siem_01", "timestamp": "2026-09-13T10:00:00Z", "type": "authentication", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_dod_lake_02", "timestamp": "2026-09-13T10:05:00Z", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_ai_03", "type": "metric_stream", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_dod_idem_06", "type": "system", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_sec_alpha_10", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t01_siem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t02_lake", "type": "audit", "severity": {"value": 2}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t03_ai", "type": "telemetry", "severity": {"value": 3}}, "tenant": {"id": "tenant_alpha"}}
+{"event": {"id": "evt_t14_idem", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t19", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}
+{"event": {"id": "evt_t20", "type": "auth", "severity": {"value": 4}}, "tenant_id": "tenant_alpha"}

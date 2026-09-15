@@ -1,0 +1,7 @@
+policies:
+- id: e2e10_route_soc
+  name: E2E-10 SOC Route
+  tenant_id: tenant-cisco
+  destinations:
+  - soc_high_priority
+  priority: 999

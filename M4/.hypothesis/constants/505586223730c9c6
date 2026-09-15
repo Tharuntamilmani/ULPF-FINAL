@@ -1,0 +1,4 @@
+# file: E:\M4\app\models\__init__.py
+# hypothesis_version: 6.131.14
+
+['ApiRole', 'CacheStatus', 'ConfigLifecycleState', 'EnrichmentDiagnostic', 'EnrichmentStatus', 'IntegrityAlgorithm', 'ProviderDiagnostic', 'TenantContext']
