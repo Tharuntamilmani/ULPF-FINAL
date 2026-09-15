@@ -4,9 +4,7 @@
 > **Working Prototype Status: FULLY OPERATIONAL**  
 > All 6 microservice engines (M1–M6), the Kafka event pipeline, the Ingress Gateway, the Health Aggregator, and both Web User Interfaces are integrated, tested end-to-end, and runnable via a unified deployment supervisor.
 
----
-
-## 🚀 Architecture Overview
+## Architecture Overview
 
 ULPF is designed to ingest raw enterprise security logs (Syslog, JSON, Windows Events, Cisco ASA, Fortinet, Palo Alto), preserve immutable cryptographic evidence, classify formats, parse fields, normalize into the **Universal Event Schema (UES v1.0.0)**, enrich context, and route dynamically to downstream destinations (OpenSearch, S3 Data Lake, Kafka).
 
@@ -67,9 +65,7 @@ External Security Client / Syslog Source
        - Probes Live Telemetry Across All 8 Services
 ```
 
----
-
-## 🖥️ Web User Interfaces
+## Web User Interfaces
 
 ULPF provides two dedicated web consoles:
 
@@ -86,7 +82,7 @@ ULPF provides two dedicated web consoles:
 
 ---
 
-## ⚡ Quickstart: Launching the Prototype
+## Quickstart: Launching the Prototype
 
 ### Prerequisites
 1. **Docker Desktop** (running with Linux containers)
@@ -112,9 +108,7 @@ The supervisor sequentially executes:
 python run_stack.py --stop
 ```
 
----
-
-## 🧪 Automated Verification & Testing
+## Automated Verification & Testing
 
 Execute the end-to-end verification suite:
 ```powershell
@@ -129,9 +123,8 @@ This suite verifies:
 - M3 Normalization into Canonical UES v1.0.0
 - Live event injection through Ingress Gateway into Kafka and OpenSearch
 
----
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 E:\ULPF
@@ -146,7 +139,6 @@ E:\ULPF
 └── README.md         # Architecture, Overview, and Quickstart
 ```
 
----
 
-## 📄 License & Purpose
+## License & Purpose
 This codebase is developed as an integrated prototype for the **Universal Log Pre-processing Framework (ULPF)**. It demonstrates high-throughput log ingestion, semantic normalization, multi-tenant isolation, and central control-plane governance.
