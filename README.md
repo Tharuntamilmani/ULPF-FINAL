@@ -80,7 +80,6 @@ ULPF provides two dedicated web consoles:
   - **Password**: `Admin_Secure_Pass_2026!`
 - **M3 Normalizer Console**: [http://127.0.0.1:5174](http://127.0.0.1:5174)
 
----
 
 ## Quickstart: Launching the Prototype
 
