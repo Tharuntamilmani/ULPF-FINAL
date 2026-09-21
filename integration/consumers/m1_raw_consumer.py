@@ -188,7 +188,13 @@ class M1RawEventConsumer:
 
         try:
             while self._running:
-                msg = await self._consumer.getone()
+                try:
+                    msg = await self._consumer.getone()
+                except Exception as e:
+                    logger.warning("Kafka consumer getone error, retrying", error=str(e))
+                    await asyncio.sleep(1.0)
+                    continue
+
                 headers = {}
                 if msg.headers:
                     headers = {k: v.decode("utf-8") for k, v in msg.headers}

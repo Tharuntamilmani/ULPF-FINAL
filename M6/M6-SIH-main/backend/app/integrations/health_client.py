@@ -70,11 +70,17 @@ async def check_kafka() -> ServiceHealthResult:
             details={"reason": "Kafka disabled in config"},
         )
     try:
+        import time
+
+        start = time.monotonic()
         from backend.app.integrations.kafka_client import get_kafka_producer
 
         producer = await get_kafka_producer()
         if producer and await producer.ping():
-            return ServiceHealthResult(service="kafka", status=HealthStatus.HEALTHY)
+            latency_ms = round((time.monotonic() - start) * 1000, 2)
+            return ServiceHealthResult(
+                service="kafka", status=HealthStatus.HEALTHY, latency_ms=latency_ms
+            )
         return ServiceHealthResult(
             service="kafka",
             status=HealthStatus.UNAVAILABLE,
@@ -93,18 +99,29 @@ async def check_opensearch() -> ServiceHealthResult:
     try:
         import time
 
-        from opensearchpy import AsyncOpenSearch
-
         start = time.monotonic()
-        client = AsyncOpenSearch(
-            hosts=[{"host": settings.opensearch_host, "port": settings.opensearch_port}],
-            http_auth=(settings.opensearch_user, settings.opensearch_password),
-            use_ssl=settings.opensearch_use_ssl,
-            verify_certs=settings.opensearch_verify_certs,
-        )
-        await client.ping()
+        try:
+            from opensearchpy import AsyncOpenSearch
+
+            client = AsyncOpenSearch(
+                hosts=[{"host": settings.opensearch_host, "port": settings.opensearch_port}],
+                http_auth=(settings.opensearch_user, settings.opensearch_password),
+                use_ssl=settings.opensearch_use_ssl,
+                verify_certs=settings.opensearch_verify_certs,
+            )
+            await client.ping()
+            await client.close()
+        except (ImportError, Exception):
+            import httpx
+
+            scheme = "https" if settings.opensearch_use_ssl else "http"
+            auth = (settings.opensearch_user, settings.opensearch_password) if settings.opensearch_password else None
+            async with httpx.AsyncClient(timeout=5, verify=settings.opensearch_verify_certs) as http_client:
+                resp = await http_client.get(f"{scheme}://{settings.opensearch_host}:{settings.opensearch_port}", auth=auth)
+                if resp.status_code not in (200, 201):
+                    raise RuntimeError(f"OpenSearch HTTP {resp.status_code}")
+
         latency = round((time.monotonic() - start) * 1000, 2)
-        await client.close()
         return ServiceHealthResult(
             service="opensearch", status=HealthStatus.HEALTHY, latency_ms=latency
         )

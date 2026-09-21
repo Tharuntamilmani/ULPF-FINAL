@@ -1,103 +1,224 @@
 import React from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import {
-  LayoutDashboard,
-  Building2,
-  Workflow,
-  Search,
-  Server,
-  Code2,
-  Database,
-  GitMerge,
-  Shield,
-  Activity,
-  ClipboardList,
-  RotateCcw,
-  Settings,
-  LogOut,
-  Radio,
-  User,
-} from 'lucide-react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { authStore } from '../../store/auth'
 import { useAuth } from '../../hooks/useAuth'
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react'
 
-const NAV = [
-  { to: '/dashboard',     icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/pipeline',      icon: Workflow,        label: 'Event Pipeline' },
-  { to: '/events',        icon: Search,          label: 'Live Explorer' },
-  { to: '/tenants',       icon: Building2,       label: 'Tenants' },
-  { to: '/sources',       icon: Server,          label: 'Sources' },
-  { to: '/parsers',       icon: Code2,           label: 'Parsers' },
-  { to: '/schemas',       icon: Database,        label: 'Schemas' },
-  { to: '/mappings',      icon: GitMerge,        label: 'Mappings' },
-  { to: '/policies',      icon: Shield,          label: 'Policies' },
-  { to: '/services',      icon: Activity,        label: 'Services' },
-  { to: '/audit',         icon: ClipboardList,   label: 'Audit' },
-  { to: '/replay',        icon: RotateCcw,       label: 'Replay' },
-  { to: '/configuration', icon: Settings,        label: 'Configuration' },
+interface NavItem {
+  to: string
+  label: string
+  matches: (pathname: string) => boolean
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    to: '/dashboard',
+    label: 'Dashboard',
+    matches: p => p === '/' || p.startsWith('/dashboard') || p.startsWith('/pipeline'),
+  },
+  {
+    to: '/events',
+    label: 'Events',
+    matches: p =>
+      p.startsWith('/events') ||
+      p.startsWith('/live-events') ||
+      p.startsWith('/raw-events') ||
+      p.startsWith('/ues-events'),
+  },
+  {
+    to: '/parsers',
+    label: 'Parsers',
+    matches: p => p.startsWith('/parsers') || p.startsWith('/parser-studio'),
+  },
+  {
+    to: '/traceability',
+    label: 'Traceability',
+    matches: p => p.startsWith('/traceability') || p.startsWith('/raw-evidence'),
+  },
+  {
+    to: '/system',
+    label: 'System',
+    matches: p =>
+      p.startsWith('/system') ||
+      p.startsWith('/health') ||
+      p.startsWith('/dlq') ||
+      p.startsWith('/replay') ||
+      p.startsWith('/audit') ||
+      p.startsWith('/observability') ||
+      p.startsWith('/services') ||
+      p.startsWith('/architecture'),
+  },
+  {
+    to: '/settings',
+    label: 'Settings',
+    matches: p =>
+      p.startsWith('/settings') ||
+      p.startsWith('/control-plane') ||
+      p.startsWith('/tenants') ||
+      p.startsWith('/sources') ||
+      p.startsWith('/mappings') ||
+      p.startsWith('/policies') ||
+      p.startsWith('/schemas') ||
+      p.startsWith('/configuration') ||
+      p.startsWith('/demo'),
+  },
 ]
 
-const linkStyle = (isActive: boolean): React.CSSProperties => ({
-  display: 'flex', alignItems: 'center', gap: 10, padding: '7px 12px',
-  borderRadius: 6, color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-  background: isActive ? 'var(--bg-hover)' : 'transparent',
-  fontWeight: isActive ? 600 : 400, fontSize: 13, transition: 'all 0.15s',
-  textDecoration: 'none',
-})
+interface SidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
 
-export function Sidebar() {
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
-  const handleLogout = () => { authStore.clearAuth(); navigate('/login') }
+
+  const handleLogout = () => {
+    authStore.clearAuth()
+    navigate('/login')
+  }
+
+  const w = collapsed ? 54 : 224
 
   return (
-    <aside style={{
-      width: 'var(--sidebar-w)', flexShrink: 0,
-      background: 'var(--bg-surface)', borderRight: '1px solid var(--border)',
-      display: 'flex', flexDirection: 'column', height: '100vh', position: 'sticky', top: 0,
-    }}>
-      {/* Brand */}
-      <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Radio size={18} color="var(--accent)" />
+    <aside
+      style={{
+        width: w,
+        flexShrink: 0,
+        background: 'var(--bg-surface)',
+        borderRight: '1px solid var(--border)',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
+        transition: 'width 0.15s ease',
+        overflow: 'hidden',
+        userSelect: 'none',
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          padding: collapsed ? '14px 0' : '16px 16px 14px',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: collapsed ? 'center' : 'flex-start',
+          minHeight: 60,
+          background: 'var(--bg-surface)',
+        }}
+      >
+        {!collapsed ? (
           <div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)' }}>ULPF</div>
-            <div style={{ fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.05em' }}>M6 CONTROL PLANE</div>
+            <div style={{ fontWeight: 700, fontSize: 17, color: 'var(--text-primary)', letterSpacing: '0.02em', lineHeight: 1.2 }}>
+              ULPF
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-secondary)', letterSpacing: '0.01em', marginTop: 3, whiteSpace: 'nowrap' }}>
+              Universal Log Pre-Processing
+            </div>
           </div>
-        </div>
+        ) : (
+          <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--accent)' }}>U</div>
+        )}
       </div>
 
-      {/* Nav */}
-      <nav style={{ flex: 1, padding: '8px 8px', overflowY: 'auto' }}>
-        {NAV.map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to} style={({ isActive }) => linkStyle(isActive)}>
-            <Icon size={15} />
-            {label}
-          </NavLink>
-        ))}
+      {/* Navigation Links — 13.5px Readable Font & Comfortable Padding */}
+      <nav style={{ flex: 1, padding: '14px 0', overflowY: 'auto' }}>
+        {NAV_ITEMS.map(({ to, label, matches }) => {
+          const isActive = matches(location.pathname)
+          return (
+            <NavLink
+              key={to}
+              to={to}
+              title={collapsed ? label : undefined}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: collapsed ? '10px 0' : '9px 18px',
+                justifyContent: collapsed ? 'center' : 'flex-start',
+                color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+                background: isActive ? 'var(--accent-subtle)' : 'transparent',
+                borderLeft: !collapsed
+                  ? isActive
+                    ? '3px solid var(--accent)'
+                    : '3px solid transparent'
+                  : 'none',
+                fontWeight: isActive ? 600 : 400,
+                fontSize: 13.5,
+                transition: 'background 0.1s ease, color 0.1s ease',
+                textDecoration: 'none',
+                marginBottom: 2,
+              }}
+            >
+              {collapsed ? (
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{label.slice(0, 1)}</span>
+              ) : (
+                <span>{label}</span>
+              )}
+            </NavLink>
+          )
+        })}
       </nav>
 
-      {/* User Info & Logout */}
-      <div style={{ padding: '10px 8px', borderTop: '1px solid var(--border)' }}>
-        {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', marginBottom: 4 }}>
-            <User size={14} color="var(--accent)" />
-            <div style={{ overflow: 'hidden' }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                {user.username}
-              </div>
-              <div style={{ fontSize: 10, color: 'var(--text-dim)' }}>
-                {user.is_superuser ? 'Super Admin' : (user.roles?.[0]?.name || 'Admin')}
-              </div>
-            </div>
+      {/* Footer Controls */}
+      <div style={{ padding: collapsed ? '8px 0' : '10px 14px', borderTop: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+        {!collapsed && user && (
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'var(--text-primary)',
+              padding: '2px 4px 6px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {user.username}
           </div>
         )}
         <button
           onClick={handleLogout}
-          style={{ ...linkStyle(false), width: '100%', border: 'none', background: 'transparent', cursor: 'pointer' }}
+          title={collapsed ? 'Logout' : undefined}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: collapsed ? 'center' : 'flex-start',
+            gap: 8,
+            width: '100%',
+            padding: collapsed ? '6px 0' : '6px 8px',
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-secondary)',
+            fontSize: 12.5,
+            cursor: 'pointer',
+          }}
         >
-          <LogOut size={15} />
-          Logout
+          <LogOut size={13} />
+          {!collapsed && <span>Logout</span>}
+        </button>
+
+        <button
+          onClick={onToggle}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '6px 0',
+            marginTop: 4,
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            background: 'transparent',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+          }}
+        >
+          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
     </aside>

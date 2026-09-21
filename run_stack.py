@@ -75,6 +75,11 @@ SERVICES_SPEC: List[Dict[str, Any]] = [
             "POSTGRES_DB": "ulpf_m6",
             "POSTGRES_HOST": "localhost",
             "REDIS_HOST": "localhost",
+            "M1_BASE_URL": "http://127.0.0.1:18001",
+            "M2_BASE_URL": "http://127.0.0.1:18082",
+            "M3_BASE_URL": "http://127.0.0.1:18083",
+            "M4_BASE_URL": "http://127.0.0.1:18004",
+            "M5_BASE_URL": "http://127.0.0.1:18085",
         }
     },
     {
@@ -290,13 +295,16 @@ BRIDGE_SPEC: Dict[str, Any] = {
 }
 
 
-def kill_existing_processes():
+def kill_existing_processes(keep_ui: bool = True):
     """Kill any existing port holders and lingering consumer bridges."""
-    ports = [18080, 18081, 18001, 18082, 18083, 18004, 18085, 18086, 18090, 18514, 18515, 5173, 5174]
+    ports = [18080, 18081, 18001, 18082, 18083, 18004, 18085, 18086, 18090, 18514, 18515]
+    if not keep_ui:
+        ports.extend([5173, 5174])
     for p in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
             cmd = " ".join(p.info.get('cmdline') or [])
-            if "M1RawEventConsumer" in cmd or "bridge_runner" in cmd or "vite" in cmd:
+            should_kill = ("M1RawEventConsumer" in cmd or "bridge_runner" in cmd) or (not keep_ui and "vite" in cmd)
+            if should_kill:
                 try:
                     for child in p.children(recursive=True):
                         child.kill()

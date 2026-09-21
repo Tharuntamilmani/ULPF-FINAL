@@ -119,11 +119,11 @@ class Settings(BaseSettings):
     grafana_password: str = ""
 
     # ── External M1–M5 URLs ────────────────────────────────────────────────────
-    m1_base_url: str = ""
-    m2_base_url: str = ""
-    m3_base_url: str = ""
-    m4_base_url: str = ""
-    m5_base_url: str = ""
+    m1_base_url: str = "http://127.0.0.1:18001"
+    m2_base_url: str = "http://127.0.0.1:18082"
+    m3_base_url: str = "http://127.0.0.1:18083"
+    m4_base_url: str = "http://127.0.0.1:18004"
+    m5_base_url: str = "http://127.0.0.1:18085"
     external_health_timeout_seconds: int = 5
     external_health_retry_attempts: int = 2
 

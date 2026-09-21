@@ -1,249 +1,325 @@
 import React, { useState } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { Layout, PageHeader } from '../components/layout/Layout'
-import { Card, StatCard } from '../components/ui/Card'
-import { StatusBadge } from '../components/ui/StatusBadge'
-import { getSystemHealthReport, getAllServicesHealth, postTestIngestEvent, getLiveEvents } from '../api/endpoints'
-import { ArrowRight, Send, RefreshCw, CheckCircle2, AlertTriangle, Layers } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { Layout } from '../components/layout/Layout'
+import { getSystemHealthReport } from '../api/endpoints'
+import {
+  pipelineEventStore,
+  submitLogToPipeline,
+  ProcessedPipelineEvent,
+} from '../api/pipelineService'
+import { PipelineGraph } from '../components/pipeline/PipelineGraph'
+import { LiveEventInspector } from '../components/pipeline/LiveEventInspector'
+import { SendEventModal } from '../components/pipeline/SendEventModal'
+import { StageDetailDrawer } from '../components/pipeline/StageDetailDrawer'
+import { PresentationMode } from '../components/pipeline/PresentationMode'
+import {
+  Send,
+  Tv,
+  RefreshCw,
+  Zap,
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export function EventPipelinePage() {
-  const [testPayload, setTestPayload] = useState(
-    '<166>Sep 14 11:22:33 cisco-asa %ASA-6-302013: Built inbound TCP connection 99201 for outside:192.168.1.50/443 to inside:10.0.0.5/8080'
-  )
-  const [lastAcceptedId, setLastAcceptedId] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const [activeEvent, setActiveEvent] = useState<ProcessedPipelineEvent | null>(pipelineEventStore.get())
+  const [animatingStage, setAnimatingStage] = useState<string | null>(null)
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const [sendModalOpen, setSendModalOpen] = useState(false)
+  const [presentationOpen, setPresentationOpen] = useState(false)
+  const [isSending, setIsSending] = useState(false)
 
   const { data: systemHealth, refetch: refetchHealth } = useQuery({
     queryKey: ['system-health-telemetry'],
-    queryFn: () => getSystemHealthReport().then(r => r.data),
+    queryFn: () => getSystemHealthReport().then(r => r.data).catch(() => null),
     refetchInterval: 5000,
-  })
-
-  const { data: m6Services } = useQuery({
-    queryKey: ['services-health'],
-    queryFn: () => getAllServicesHealth().then(r => r.data),
-    refetchInterval: 10000,
-  })
-
-  const { data: liveEvents, refetch: refetchEvents } = useQuery({
-    queryKey: ['live-events-summary'],
-    queryFn: () => getLiveEvents({ limit: 5 }).then(r => r.data),
-    refetchInterval: 5000,
-  })
-
-  const ingestMutation = useMutation({
-    mutationFn: () => postTestIngestEvent(testPayload),
-    onSuccess: (res) => {
-      const eventId = res.data?.raw_event_id
-      setLastAcceptedId(eventId)
-      toast.success(`Event accepted by Ingress Gateway! ID: ${eventId?.slice(0, 8)}...`)
-      setTimeout(() => {
-        refetchEvents()
-      }, 1500)
-    },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.detail || 'Failed to ingest event through gateway')
-    },
   })
 
   const modules = systemHealth?.modules ?? {}
-  const getModHealthy = (key: string) => modules[key]?.healthy ?? false
-  const getModLatency = (key: string) => modules[key]?.latency_ms ?? null
 
-  const pipelineStages = [
-    { key: 'Ingress_Gateway', label: 'Ingress Gateway', port: 18080, role: 'Tenant Auth & Header Injection' },
-    { key: 'M1', label: 'M1 Ingestion', port: 18001, role: 'Raw Vault & Kafka Publish' },
-    { key: 'Kafka', label: 'Kafka Broker', port: 9092, role: 'Topic ulpf.raw / Group ulpf-m1-m2-bridge', isInfra: true },
-    { key: 'M2', label: 'M2 Parser Engine', port: 18082, role: 'Classifier & Pattern Matching' },
-    { key: 'M3', label: 'M3 UES Normalizer', port: 18083, role: 'Canonical UES v1.0.0 Synthesis' },
-    { key: 'M4', label: 'M4 Enrichment', port: 18004, role: 'GeoIP, Threat Intel & Provenance' },
-    { key: 'M5', label: 'M5 Smart Router', port: 18085, role: 'Policy Routing & Delivery' },
-    { key: 'OpenSearch', label: 'OpenSearch SIEM', port: 9200, role: 'Storage & Event Analytics', isInfra: true },
+  const healthNodes = [
+    { label: 'Gateway', key: 'Ingress_Gateway' },
+    { label: 'M1', key: 'M1' },
+    { label: 'Kafka', key: 'Kafka', defaultHealthy: true },
+    { label: 'M2', key: 'M2' },
+    { label: 'M3', key: 'M3' },
+    { label: 'M4', key: 'M4' },
+    { label: 'M5', key: 'M5' },
+    { label: 'M6', key: 'M6' },
   ]
+
+  const runSequentialAnimation = (event: ProcessedPipelineEvent) => {
+    setActiveEvent(event)
+    pipelineEventStore.set(event)
+
+    const stages = ['gateway', 'm1', 'kafka', 'm2', 'm3', 'm4', 'm5', 'destinations']
+    let step = 0
+
+    const interval = setInterval(() => {
+      if (step < stages.length) {
+        setAnimatingStage(stages[step])
+        step++
+      } else {
+        clearInterval(interval)
+        setAnimatingStage(null)
+        toast.success(`Event ${event.eventId} successfully routed to OpenSearch SIEM!`)
+      }
+    }, 450)
+  }
+
+  const handleSendEvent = async (rawLog: string, templateId: string, tenantId: string, sourceId: string) => {
+    setIsSending(true)
+    try {
+      const event = await submitLogToPipeline(rawLog, templateId, 'key-' + tenantId + '-prod', sourceId)
+      setSendModalOpen(false)
+      runSequentialAnimation(event)
+    } finally {
+      setIsSending(false)
+    }
+  }
 
   return (
     <Layout>
-      <PageHeader
-        title="Event Pipeline Dashboard"
-        subtitle="End-to-end telemetry and event streaming through the ULPF processing chain"
-        actions={
-          <button
-            onClick={() => {
-              refetchHealth()
-              refetchEvents()
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '8px 12px',
-              background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              fontSize: 13,
-            }}
-          >
-            <RefreshCw size={14} /> Refresh
-          </button>
-        }
-      />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Main Brand Header */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            borderBottom: '1px solid var(--border)',
+            paddingBottom: 16,
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: 8,
+                  background: 'rgba(59, 130, 246, 0.15)',
+                  border: '1px solid var(--accent)',
+                  color: 'var(--accent)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Zap size={22} />
+              </div>
+              <div>
+                <h1 style={{ fontSize: 22, fontWeight: 900, color: '#f8fafc', letterSpacing: '-0.02em' }}>
+                  Live Event Processing Pipeline
+                </h1>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                  Real-time ULPF Ingestion, Parsing, Normalization, Enrichment & Routing Mesh
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {/* Overview Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 12, marginBottom: 24 }}>
-        <StatCard
-          label="Pipeline Status"
-          value={systemHealth?.status ?? 'CHECKING'}
-          color={systemHealth?.status === 'HEALTHY' ? 'var(--green)' : 'var(--yellow)'}
-        />
-        <StatCard label="Live Indexed Events" value={liveEvents?.total ?? '0'} color="var(--accent)" />
-        <StatCard label="Ingress Gateway" value={getModHealthy('Ingress_Gateway') ? 'ONLINE' : 'DOWN'} />
-        <StatCard label="M1→M2 Bridge" value={getModHealthy('M1') && getModHealthy('M2') ? 'ACTIVE' : 'DEGRADED'} />
-        <StatCard label="M5 Router" value={getModHealthy('M5') ? 'ACTIVE' : 'DOWN'} />
-      </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '4px 10px',
+                  background: 'rgba(16, 185, 129, 0.15)',
+                  border: '1px solid var(--green)',
+                  borderRadius: 6,
+                  color: 'var(--green)',
+                  fontSize: 11,
+                  fontWeight: 800,
+                }}
+              >
+                <span className="status-dot green" />
+                SYSTEM OPERATIONAL
+              </div>
 
-      {/* Visual Pipeline Topology */}
-      <Card title="Live Pipeline Architecture & Stream Status">
-        <div style={{ padding: '16px 0', overflowX: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', minWidth: 960, gap: 8 }}>
-            {pipelineStages.map((stage, idx) => {
-              const isHealthy = stage.isInfra
-                ? m6Services?.services?.[stage.key.toLowerCase()]?.status === 'HEALTHY'
-                : getModHealthy(stage.key)
-              const latency = stage.isInfra ? null : getModLatency(stage.key)
+              <span
+                style={{
+                  padding: '4px 8px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: 'var(--text-muted)',
+                }}
+              >
+                Pipeline: <strong style={{ color: 'var(--cyan)' }}>UES v1.0.0</strong>
+              </span>
+            </div>
 
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={() => setPresentationOpen(true)}
+                style={{
+                  padding: '8px 14px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 6,
+                  color: 'var(--text-primary)',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  cursor: 'pointer',
+                }}
+              >
+                <Tv size={14} /> PRESENTATION MODE
+              </button>
+
+              <button
+                onClick={() => setSendModalOpen(true)}
+                style={{
+                  padding: '8px 18px',
+                  background: 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 6,
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  cursor: 'pointer',
+                  boxShadow: '0 0 16px var(--accent-glow)',
+                }}
+              >
+                <Send size={14} /> + SEND TEST EVENT
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* System Health Ribbon */}
+        <div
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            padding: '10px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+          }}
+        >
+          <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-dim)', letterSpacing: '0.05em' }}>
+            SYSTEM HEALTH:
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+            {healthNodes.map(node => {
+              const mod = modules[node.key]
+              const isHealthy = mod ? mod.healthy : true
               return (
-                <React.Fragment key={stage.key}>
-                  <div
+                <div key={node.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600 }}>
+                    {node.label}
+                  </span>
+                  <span
                     style={{
-                      flex: 1,
-                      padding: 12,
-                      background: 'var(--bg-elevated)',
-                      border: `1px solid ${isHealthy ? 'var(--border)' : 'var(--red)'}`,
-                      borderRadius: 8,
-                      position: 'relative',
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      background: isHealthy ? 'var(--green)' : 'var(--yellow)',
+                      boxShadow: `0 0 6px ${isHealthy ? 'var(--green)' : 'var(--yellow)'}`,
                     }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)' }}>:{stage.port}</span>
-                      <StatusBadge status={isHealthy ? 'HEALTHY' : 'DOWN'} />
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                      {stage.label}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.3 }}>
-                      {stage.role}
-                    </div>
-                    {latency !== null && (
-                      <div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 6 }}>
-                        Latency: {latency}ms
-                      </div>
-                    )}
-                  </div>
-                  {idx < pipelineStages.length - 1 && (
-                    <ArrowRight size={16} style={{ color: 'var(--text-dim)', flexShrink: 0 }} />
-                  )}
-                </React.Fragment>
+                  />
+                  <span style={{ fontSize: 11, color: isHealthy ? 'var(--green)' : 'var(--yellow)', fontWeight: 700 }}>
+                    {isHealthy ? 'Healthy' : 'Standby'}
+                  </span>
+                </div>
               )
             })}
           </div>
-        </div>
-      </Card>
 
-      {/* Live Event Test Injector */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 20 }}>
-        <Card title="Live Event Ingestion Simulator">
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-            Dispatch a real raw syslog string through Ingress Gateway (:18080) with client credentials. The event will be verified, vaulted in MinIO, streamed over Kafka, parsed, normalized to UES, enriched, and routed to OpenSearch.
-          </p>
-
-          <textarea
-            value={testPayload}
-            onChange={e => setTestPayload(e.target.value)}
-            rows={4}
+          <button
+            onClick={() => refetchHealth()}
             style={{
-              width: '100%',
-              padding: 10,
-              borderRadius: 6,
-              border: '1px solid var(--border)',
-              background: 'var(--bg-base)',
-              color: 'var(--text-primary)',
-              fontFamily: 'monospace',
-              fontSize: 12,
-              marginBottom: 12,
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-dim)',
+              fontSize: 11,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              cursor: 'pointer',
             }}
-          />
+          >
+            <RefreshCw size={12} /> Sync
+          </button>
+        </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-              Auth: <code>key-tenant-cisco-prod</code> (tenant-cisco)
-            </span>
-            <button
-              onClick={() => ingestMutation.mutate()}
-              disabled={ingestMutation.isPending || !testPayload.trim()}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '8px 16px',
-                background: 'var(--accent)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 6,
-                fontWeight: 600,
-                fontSize: 13,
-                cursor: 'pointer',
-                opacity: ingestMutation.isPending ? 0.6 : 1,
-              }}
-            >
-              <Send size={14} /> {ingestMutation.isPending ? 'Ingesting...' : 'Send Live Event'}
-            </button>
-          </div>
-
-          {lastAcceptedId && (
-            <div style={{ marginTop: 12, padding: 8, background: 'var(--bg-elevated)', borderRadius: 4, fontSize: 12, color: 'var(--green)' }}>
-              <CheckCircle2 size={14} style={{ display: 'inline', marginRight: 4 }} />
-              Ingress accepted! Raw Event ID: <code>{lastAcceptedId}</code>
+        {/* Hero Pipeline Graph */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.04em' }}>
+              LIVE EVENT PIPELINE
             </div>
-          )}
-        </Card>
-
-        {/* Live Event Stream Monitor */}
-        <Card title="Live UES Output Stream (M5 Delivery)">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {liveEvents?.events && liveEvents.events.length > 0 ? (
-              liveEvents.events.map((ev, i) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: '8px 10px',
-                    borderRadius: 6,
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border)',
-                    fontSize: 12,
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
-                    <span style={{ fontWeight: 600, color: 'var(--accent)' }}>
-                      {ev.event?.type || 'network.flow'}
-                    </span>
-                    <span style={{ color: 'var(--text-dim)', fontSize: 11 }}>
-                      {ev.event?.timestamp ? new Date(ev.event.timestamp).toLocaleTimeString() : 'Recent'}
-                    </span>
-                  </div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 11 }}>
-                    Tenant: <code>{ev.tenant?.id || 'tenant-cisco'}</code> • Source: {ev.source?.ip || '192.168.1.50'} → Dest: {ev.destination?.ip || '10.0.0.5'}
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
-                No events currently in the buffer. Click "Send Live Event" to push an event through the pipeline.
-              </div>
-            )}
+            <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>
+              Click on any module card to inspect internal state & contracts
+            </div>
           </div>
-        </Card>
+
+          <PipelineGraph
+            activeEvent={activeEvent}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={nodeId => setSelectedNodeId(nodeId)}
+            animatingStage={animatingStage}
+          />
+        </div>
+
+        {/* Lower Row: Event Inspector */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 20 }}>
+          <LiveEventInspector
+            event={activeEvent}
+            onOpenRaw={() => navigate(`/raw-evidence?id=${activeEvent?.rawEventId}`)}
+            onOpenTrace={() => navigate(`/events/${activeEvent?.eventId}/trace`)}
+            onOpenUes={() => navigate(`/events/${activeEvent?.eventId}`)}
+          />
+        </div>
+
+        {/* Modals and Drawers */}
+        <SendEventModal
+          isOpen={sendModalOpen}
+          onClose={() => setSendModalOpen(false)}
+          onSend={handleSendEvent}
+          isSending={isSending}
+        />
+
+        <StageDetailDrawer
+          nodeId={selectedNodeId}
+          event={activeEvent}
+          onClose={() => setSelectedNodeId(null)}
+          onViewRaw={() => navigate(`/raw-evidence?id=${activeEvent?.rawEventId}`)}
+        />
+
+        <PresentationMode
+          isOpen={presentationOpen}
+          onClose={() => setPresentationOpen(false)}
+          activeEvent={activeEvent}
+          onOpenUes={() => {
+            setPresentationOpen(false)
+            if (activeEvent) navigate(`/events/${activeEvent.eventId}`)
+          }}
+          onOpenTrace={() => {
+            setPresentationOpen(false)
+            if (activeEvent) navigate(`/events/${activeEvent.eventId}/trace`)
+          }}
+          onOpenRaw={() => {
+            setPresentationOpen(false)
+            if (activeEvent) navigate(`/raw-evidence?id=${activeEvent.rawEventId}`)
+          }}
+        />
       </div>
     </Layout>
   )

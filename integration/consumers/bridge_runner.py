@@ -23,7 +23,7 @@ async def main():
                 m2_base_url=M2_BASE_URL,
             )
             await consumer.start()
-        except Exception as e:
+        except BaseException as e:
             print(f"[Bridge Runner] Consumer exited with error: {e}. Reconnecting in 1s...", flush=True)
             await asyncio.sleep(1.0)
 

@@ -123,8 +123,12 @@ This suite verifies:
 - Live event injection through Ingress Gateway into Kafka and OpenSearch
 
 
+<<<<<<< HEAD
 ## Repository Structure
 
+=======
+## 📁 Repository Structure
+>>>>>>> 79b19a9 (Update ULPF dashboard and pipeline animation)
 ```
 E:\ULPF
 ├── M1/               # Ingestion Boundary, UDP/TCP Syslog, MinIO Vault, Outbox

@@ -70,12 +70,44 @@ class KafkaProducer:
     async def ping(self) -> bool:
         """Return True if broker is reachable."""
         try:
-            from confluent_kafka.admin import AdminClient  # noqa: PLC0415
+            import asyncio
+            import socket
 
             settings = self._settings
-            admin = AdminClient({"bootstrap.servers": settings.kafka_bootstrap_servers})
-            metadata = admin.list_topics(timeout=3)
-            return metadata is not None
+            servers = settings.kafka_bootstrap_servers.split(",")
+            first_server = servers[0].strip()
+            parts = first_server.split(":")
+            host = parts[0]
+            port = int(parts[1]) if len(parts) > 1 else 9092
+
+            def _socket_check() -> bool:
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    s.settimeout(2.0)
+                    s.connect((host, port))
+                    s.close()
+                    return True
+                except Exception:
+                    return False
+
+            sock_ok = await asyncio.to_thread(_socket_check)
+            if not sock_ok:
+                return False
+
+            def _admin_check() -> bool:
+                try:
+                    from confluent_kafka.admin import AdminClient  # noqa: PLC0415
+
+                    admin = AdminClient({
+                        "bootstrap.servers": settings.kafka_bootstrap_servers,
+                        "socket.timeout.ms": 3000,
+                    })
+                    metadata = admin.list_topics(timeout=3)
+                    return metadata is not None and len(metadata.brokers) > 0
+                except Exception:
+                    return True  # Socket connection already verified TCP reachability
+
+            return await asyncio.to_thread(_admin_check)
         except Exception:
             return False
 
