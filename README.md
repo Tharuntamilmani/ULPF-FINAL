@@ -1,147 +1,927 @@
+<div align="center">
+
 # Universal Log Pre-processing Framework (ULPF)
+
 ### High-Throughput, Multi-Tenant Telemetry Normalization & Control-Plane Architecture
 
-> **Working Prototype Status: FULLY OPERATIONAL**  
-> All 6 microservice engines (M1–M6), the Kafka event pipeline, the Ingress Gateway, the Health Aggregator, and both Web User Interfaces are integrated, tested end-to-end, and runnable via a unified deployment supervisor.
+**Problem Statement 26062** · Ministry of Earth Sciences (MoES) · NCPOR · Smart Automation
 
-## Architecture Overview
+---
 
-ULPF is designed to ingest raw enterprise security logs (Syslog, JSON, Windows Events, Cisco ASA, Fortinet, Palo Alto), preserve immutable cryptographic evidence, classify formats, parse fields, normalize into the **Universal Event Schema (UES v1.0.0)**, enrich context, and route dynamically to downstream destinations (OpenSearch, S3 Data Lake, Kafka).
+[![Python 3.12+](https://img.shields.io/badge/Python-3.12+-blue?logo=python&logoColor=white)](#)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?logo=fastapi&logoColor=white)](#)
+[![React 18](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)](#)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL-16-336791?logo=postgresql&logoColor=white)](#)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](#license)
+
+</div>
+
+---
+
+## 🎯 Problem Statement
+
+> *"Develop a centralized digital platform for expedition planning, cargo tracking, inventory management, personnel movement and emergency response."*
+> — National Centre for Polar and Ocean Research (NCPOR), MoES
+
+Polar expeditions generate massive volumes of operational telemetry across heterogeneous systems — from station security appliances, network firewalls, environmental sensors, and logistics platforms. ULPF provides the **foundational data infrastructure** that ingests, classifies, normalizes, enriches, and routes this telemetry into a unified operational view. This enables NCPOR operations staff to achieve **centralized situational awareness**, **forensic traceability**, and **automated alerting** across all expedition systems from a single control plane.
+
+---
+
+## 💡 Our Solution
+
+ULPF is a **microservice-based log processing pipeline** composed of 6 specialized engines (M1–M6), an integration layer, and two web interfaces. It solves the core data integration problem that underpins any expedition management platform:
+
+| Who | What |
+|-----|------|
+| **Security Operations** | Unified event dashboard across all expedition security appliances (Cisco ASA, Fortinet, Palo Alto, Windows Events) |
+| **Expedition Administrators** | Multi-tenant isolation per expedition/station, RBAC governance, full audit trail |
+| **Parser Developers** | Visual regex studio with ReDoS protection, live sandbox testing |
+| **Logistics Analysts** | Normalized event correlation across disparate vendor formats via UES v1.0.0 |
+
+The system processes raw security logs through a **5-stage pipeline** (Ingest → Classify → Normalize → Enrich → Route), governed by a central control plane with configuration distribution, policy management, and health observability.
+
+---
+
+## 🚀 Key Capabilities
+
+| Capability | Description | Status |
+|:--|:--|:--:|
+| **Raw Log Ingestion** | UDP/TCP Syslog + HTTP API intake with SHA-256 cryptographic hashing | 🟢 |
+| **Immutable Evidence Vault** | MinIO object storage cold vault for forensic raw log preservation | 🟢 |
+| **Format Classification** | Regex-based parser engine with ReDoS polynomial backtracking guard | 🟢 |
+| **Parser Studio** | Visual regex builder, sandbox test runner, live syslog testing | 🟢 |
+| **UES Normalization** | Universal Event Schema v1.0.0 synthesis with vendor field preservation | 🟢 |
+| **Context Enrichment** | GeoIP, asset metadata, and threat intelligence enrichment | 🟢 |
+| **Smart Routing** | Policy-driven delivery to OpenSearch, S3 Data Lake, Kafka, HTTP webhooks | 🟢 |
+| **Dead Letter Queue** | Failed delivery retry engine with exponential backoff and DLQ management | 🟢 |
+| **Multi-Tenant Isolation** | Tenant boundary enforcement, per-tenant configuration, anti-spoofing | 🟢 |
+| **RBAC & Audit** | 5-role hierarchy with complete audit logging of all administrative actions | 🟢 |
+| **Configuration Distribution** | Atomic versioned config deployment to M1–M5 via Redis distributed bus | 🟢 |
+| **Event Replay** | Re-process historical events through the pipeline with full traceability | 🟢 |
+| **Pipeline Health Monitoring** | Live telemetry aggregation across all 8+ services with readiness probing | 🟢 |
+| **Observability Stack** | Prometheus metrics collection + Grafana dashboards | 🟢 |
+| **Contract Testing** | JSON Schema contracts ensuring inter-module API compatibility | 🟢 |
+
+---
+
+## 🧠 Smart Automation
+
+### Currently Implemented Automation
 
 ```
-External Security Client / Syslog Source
-               │
-               ▼
-   [ Ingress Security Gateway ] (:18080)
-   - Tenant Boundary Enforcement & Anti-Spoofing
-               │
-               ▼
-   [ M1: Ingestion & Raw Vault Boundary ] (:18001)
-   - Cryptographic Hashing (SHA-256)
-   - MinIO Object Storage Cold Vault (:9000)
-   - Durable SQLite Outbox
-               │
-               ▼
-        [ Apache Kafka ] (:9092)
-        - Topic: ulpf.raw (Partitioned)
-               │
-               ▼
-   [ M1 → M2 Consumer Bridge ]
-   - At-Least-Once Delivery & Idempotency Filter
-               │
-               ▼
-   [ M2: Format Classifier & Parser Engine ] (:18082)
-   - Regex Engines & ReDoS Polynomial Backtracking Guard
-   - Dynamic Parser Studio & Sandbox Test Runner
-               │
-               ▼
-   [ M3: UES Canonical Normalizer ] (:18083)
-   - Universal Event Schema v1.0.0 Synthesis
-   - Preserved Vendor Fields & Provenance Tracing
-               │
-               ▼
-   [ M4: Context Enrichment Engine ] (:18004)
-   - GeoIP, Asset Metadata & Threat Intelligence
-               │
-               ▼
-   [ M5: Smart Router & Delivery Engine ] (:18085)
-   - Routing Policy Evaluation & DLQ Retries
-   - OpenSearch Hot Storage (:9200) & S3 Cold Archival
+┌─────────────────────────────────────────────────────────────────┐
+│  AUTOMATED INGESTION PIPELINE                                   │
+│                                                                 │
+│  Raw Syslog/JSON Event Arrives                                  │
+│        ↓                                                        │
+│  Ingress Gateway: Tenant identification, anti-spoofing          │
+│        ↓                                                        │
+│  M1: SHA-256 hash → MinIO vault → Kafka publish                 │
+│        ↓  (Kafka Consumer Bridge — automatic)                   │
+│  M2: Auto-classify format → Apply matching parser               │
+│        ↓                                                        │
+│  M3: Transform to UES v1.0.0 canonical schema                  │
+│        ↓                                                        │
+│  M4: Enrich with GeoIP, asset metadata                          │
+│        ↓                                                        │
+│  M5: Evaluate routing policies → Deliver to destinations        │
+│        ↓                                                        │
+│  OpenSearch (hot) / S3 Data Lake (cold) / Kafka (stream)        │
+│                                                                 │
+│  On Failure: → DLQ → Automatic retry with backoff               │
+│  On Config Change: → Redis bus → Atomic distribution to M1–M5   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Control Plane & Observability
+**Why This Matters to NCPOR:**
+
+- **Zero-touch log processing**: Once configured, security events from any expedition appliance flow through classification → normalization → enrichment → storage without manual intervention.
+- **Cryptographic forensic chain**: Every raw event is SHA-256 hashed and vaulted before any transformation, providing an immutable evidence chain for incident investigations.
+- **Automated configuration deployment**: When an admin updates a parser or routing policy, the change atomically propagates to all pipeline modules via Redis — no manual restart required.
+- **Self-healing delivery**: Failed event deliveries are automatically retried with exponential backoff and routed to a dead letter queue for operator review.
+
+### Future Automation (Not Currently Implemented)
+
+- ⚪ AI-assisted log anomaly detection
+- ⚪ Predictive inventory alerts based on consumption patterns
+- ⚪ GPS/RFID-integrated asset tracking
+- ⚪ Satellite communication link monitoring
+- ⚪ Automated emergency response escalation
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TB
+    subgraph EXTERNAL["External Sources"]
+        SYS["Syslog Sources<br/>(UDP :18514 / TCP :18515)"]
+        HTTP_IN["HTTP API Clients"]
+    end
+
+    subgraph GATEWAY["Ingress Layer"]
+        GW["Ingress Security Gateway<br/>:18080<br/>Tenant Boundary & Anti-Spoofing"]
+    end
+
+    subgraph PIPELINE["Processing Pipeline"]
+        M1["M1: Ingestion & Raw Vault<br/>:18001<br/>SHA-256 Hash → MinIO → Kafka"]
+        BRIDGE["M1→M2 Kafka Consumer Bridge<br/>At-Least-Once Delivery"]
+        M2["M2: Format Classifier & Parser<br/>:18082<br/>Regex Engine + ReDoS Guard"]
+        M3["M3: UES Normalizer<br/>:18083<br/>Canonical Schema v1.0.0"]
+        M4["M4: Context Enrichment<br/>:18004<br/>GeoIP + Asset Metadata"]
+        M5["M5: Smart Router<br/>:18085<br/>Policy Evaluation + DLQ"]
+    end
+
+    subgraph CONTROL["Control Plane"]
+        M6["M6: Central Control Plane<br/>:18086<br/>CRUD + RBAC + Audit"]
+        CS["ConfigSync Worker<br/>:18081<br/>Redis Distributed Bus"]
+        HA["Health Aggregator<br/>:18090<br/>Live Telemetry"]
+    end
+
+    subgraph STORAGE["Storage & Destinations"]
+        PG[("PostgreSQL :5432<br/>Multi-Tenant DB")]
+        REDIS[("Redis :6379<br/>Config Bus")]
+        MINIO[("MinIO :9000<br/>Raw Vault")]
+        KAFKA[("Kafka :9092<br/>Event Stream")]
+        OS[("OpenSearch :9200<br/>Hot Storage")]
+    end
+
+    subgraph UI["Web Interfaces"]
+        UI6["M6 Control Plane Dashboard<br/>:5173<br/>React + TypeScript + Vite"]
+        UI3["M3 Normalizer Console<br/>:5174<br/>React + TypeScript + Vite"]
+    end
+
+    SYS --> GW
+    HTTP_IN --> GW
+    GW --> M1
+    M1 --> MINIO
+    M1 --> KAFKA
+    KAFKA --> BRIDGE
+    BRIDGE --> M2
+    M2 --> M3
+    M3 --> M4
+    M4 --> M5
+    M5 --> OS
+    M5 --> KAFKA
+
+    M6 --> PG
+    M6 --> CS
+    CS --> REDIS
+    HA --> M1 & M2 & M3 & M4 & M5 & M6 & GW & CS
+
+    UI6 --> M6
+    UI3 --> M3
 ```
-       [ M6: Central Control Plane ] (:18086)
-       - PostgreSQL Multi-Tenant DB (:5432)
-       - Tenant, Source, Parser, Mapping, & Policy CRUD
-       - RBAC (Admin, Analyst, Viewer) & Audit Logging
-                         │
-                         ▼
-        [ ConfigurationSync Worker ] (:18081)
-        - Redis Distributed Bus (:6379)
-        - Atomic Version Distribution to M1–M5
 
-       [ System Health Aggregator ] (:18090)
-       - Probes Live Telemetry Across All 8 Services
+---
+
+## 🔄 End-to-End Data Flow
+
+```
+External Syslog / JSON Event
+        ↓
+Ingress Security Gateway (:18080)
+  • Tenant identification from API key
+  • Anti-spoofing validation
+  • Rate limiting
+        ↓
+M1 — Ingestion & Raw Vault (:18001)
+  • SHA-256 cryptographic hash
+  • Store raw blob in MinIO (immutable vault)
+  • Persist to durable SQLite outbox
+  • Publish to Kafka topic: ulpf.raw
+        ↓
+M1→M2 Consumer Bridge (Kafka)
+  • At-least-once delivery guarantee
+  • Idempotency filter (SHA-256 dedup)
+        ↓
+M2 — Format Classifier & Parser (:18082)
+  • Detect vendor format (Cisco ASA, Fortinet, Palo Alto, Windows, Generic Syslog)
+  • Apply matching regex parser
+  • Extract structured fields
+  • ReDoS backtracking guard
+        ↓
+M3 — UES Canonical Normalizer (:18083)
+  • Map vendor-specific fields to Universal Event Schema v1.0.0
+  • Preserve original vendor fields
+  • Attach provenance metadata
+        ↓
+M4 — Context Enrichment (:18004)
+  • GeoIP resolution for IP addresses
+  • Asset metadata lookup
+  • Threat intelligence correlation
+        ↓
+M5 — Smart Router & Delivery (:18085)
+  • Evaluate routing policies (YAML-defined rules)
+  • Deliver to: OpenSearch (hot), S3/MinIO Data Lake (cold), Kafka (stream), HTTP webhooks
+  • On failure: → Dead Letter Queue → Retry with exponential backoff
 ```
 
-## Web User Interfaces
+---
 
-ULPF provides two dedicated web consoles:
+## 🛠️ Technology Stack
 
-| Application | Port | Technology | Primary Role |
-| :--- | :---: | :--- | :--- |
-| **M6 Control Plane Dashboard** | `5173` | React 18, TypeScript, TailwindCSS, Vite | Security operations, tenant administration, pipeline monitor, configuration deployment, and live event explorer. |
-| **M3 Developer Normalizer Console**| `5174` | React 18, TypeScript, Vite | Parser and mapping developer workspace, live raw syslog test console, and Canonical UES inspector. |
+| Layer | Technology | Version | Purpose |
+|:------|:-----------|:--------|:--------|
+| **Frontend** | React + TypeScript | 18.3 / 5.4 | M6 Control Plane Dashboard & M3 Normalizer Console |
+| **UI Build** | Vite | 5.3 | Dev server with hot reload and API proxying |
+| **UI Libraries** | React Router, TanStack Query, Recharts, Lucide | 6.24 / 5.45 / 2.12 | Routing, data fetching, charts, icons |
+| **Backend** | FastAPI + Uvicorn | 0.111 / 0.29 | Async REST API with OpenAPI documentation |
+| **ORM** | SQLAlchemy + Alembic | 2.0 / 1.13 | Async PostgreSQL ORM with versioned migrations |
+| **Database** | PostgreSQL | 16 | Multi-tenant relational store |
+| **Cache / Bus** | Redis | 7 | Configuration distribution bus + caching |
+| **Message Queue** | Apache Kafka | 3.7 | Event streaming between pipeline stages |
+| **Object Storage** | MinIO | Latest | S3-compatible raw evidence vault & data lake |
+| **Search / SIEM** | OpenSearch | 2.14 | Hot event indexing and search |
+| **Monitoring** | Prometheus + Grafana | 2.52 / 10.4 | Metrics collection and dashboards |
+| **Auth** | JWT (python-jose) + bcrypt | — | Token-based authentication with password hashing |
+| **Serialization** | Pydantic v2 + orjson | 2.7 / 3.10 | Schema validation and fast JSON serialization |
+| **Language** | Python | 3.12+ | All backend microservices |
+| **Containerization** | Docker + Docker Compose | — | Infrastructure services orchestration |
 
-### Web Access & Default Credentials
-- **M6 Admin Control Plane**: [http://127.0.0.1:5173](http://127.0.0.1:5173)
-  - **Username**: `admin`
-  - **Password**: `Admin_Secure_Pass_2026!`
-- **M3 Normalizer Console**: [http://127.0.0.1:5174](http://127.0.0.1:5174)
+---
 
+## 📁 Project Structure
 
-## Quickstart: Launching the Prototype
+```
+E:\ULPF\
+├── M1/                          # Ingestion Boundary Module
+│   └── modules/m1-ingestion/    # UDP/TCP Syslog, HTTP API, MinIO Vault, Kafka Publisher
+│       ├── app/                 # FastAPI application
+│       ├── data/                # Local data store
+│       └── .env.example         # M1-specific environment
+│
+├── M2/                          # Format Classifier & Parser Engine
+│   └── abcd-main/              
+│       ├── app/                 # FastAPI application + regex engine
+│       ├── parsers/             # Parser definition storage
+│       └── openapi.json         # API specification
+│
+├── M3/                          # UES Canonical Normalizer
+│   ├── app/                     # FastAPI application + normalizer engine
+│   ├── frontend/                # M3 Developer Console (React + Vite)
+│   ├── mappings/                # Vendor-to-UES mapping definitions
+│   │   ├── cisco/               # Cisco ASA mappings
+│   │   ├── fortinet/            # Fortinet mappings
+│   │   ├── paloalto/            # Palo Alto mappings
+│   │   ├── windows/             # Windows Event mappings
+│   │   └── generic/             # Generic syslog mappings
+│   ├── schema/                  # UES schema definitions
+│   └── .env.example             # M3-specific environment
+│
+├── M4/                          # Context Enrichment Engine
+│   ├── app/                     # FastAPI application
+│   ├── contracts/               # Input/output contracts
+│   └── docs/                    # Module documentation
+│
+├── M5/                          # Smart Router & Delivery Engine
+│   ├── app/                     # FastAPI application
+│   │   ├── connectors/          # OpenSearch, Data Lake, Kafka, HTTP connectors
+│   │   ├── delivery/            # Delivery engine + DLQ
+│   │   ├── policy/              # Routing policy evaluator
+│   │   └── router/              # Smart routing logic
+│   ├── policies/                # YAML routing policy definitions
+│   ├── data/                    # DLQ + data lake local store
+│   └── .env.example             # M5-specific environment
+│
+├── M6/                          # Central Control Plane
+│   └── M6-SIH-main/
+│       ├── backend/             # FastAPI application
+│       │   ├── app/
+│       │   │   ├── api/         # REST routers (14 endpoint groups)
+│       │   │   ├── models/      # SQLAlchemy ORM models (13 entities)
+│       │   │   ├── schemas/     # Pydantic request/response schemas
+│       │   │   ├── services/    # Business logic (config distribution, replay)
+│       │   │   ├── repositories/# Data access layer
+│       │   │   ├── integrations/# External service clients (M1-M5, Kafka, Redis, etc.)
+│       │   │   ├── core/        # Config, RBAC, security, middleware
+│       │   │   ├── audit/       # Audit logging infrastructure
+│       │   │   └── health/      # Health check endpoints
+│       │   └── alembic/         # Database migration versions
+│       ├── frontend/            # M6 Control Plane Dashboard (React 18 + Vite)
+│       │   └── src/
+│       │       ├── pages/       # 29 page components
+│       │       ├── components/  # Shared UI components
+│       │       ├── api/         # API client + endpoint definitions
+│       │       ├── hooks/       # React hooks (auth, data fetching)
+│       │       ├── store/       # State management
+│       │       └── types/       # TypeScript type definitions
+│       ├── contracts/           # JSON Schema inter-module contracts
+│       ├── deployment/          # Prometheus, Grafana, air-gap configs
+│       ├── scripts/             # Seed, migration, startup scripts
+│       ├── tests/               # Unit, API, contract, integration tests
+│       ├── docker-compose.yml   # Full infrastructure stack
+│       ├── Makefile             # Development automation
+│       └── .env.example         # Environment template
+│
+├── integration/                 # Cross-cutting integration layer
+│   ├── security/                # Ingress Security Gateway
+│   ├── config_sync/             # ConfigSync Worker (Redis distribution)
+│   ├── consumers/               # M1→M2 Kafka Consumer Bridge
+│   ├── observability/           # System Health Aggregator
+│   ├── adapters/                # Service adapters
+│   ├── contracts/               # Integration contracts
+│   ├── orchestration/           # Pipeline orchestration
+│   └── tests/                   # Integration tests
+│
+├── run_stack.py                 # Unified Deployment Supervisor & Process Orchestrator
+├── start_ulpf.ps1              # Windows PowerShell startup wrapper
+├── stop_ulpf.ps1               # Windows PowerShell shutdown wrapper
+└── README.md                   # This file
+```
+
+---
+
+## ⚡ Quick Start
 
 ### Prerequisites
-1. **Docker Desktop** (running with Linux containers)
-2. **Python 3.12+**
-3. **Node.js 20+** and **npm**
-4. **PostgreSQL 16+** (Local port 5432 with database `ulpf_m6`)
 
-### Launch Complete Stack (Backend + Infrastructure + Web UIs)
-Run the automated supervisor:
+| Requirement | Version | Purpose |
+|:--|:--|:--|
+| **Docker Desktop** | Latest | Infrastructure containers (Kafka, MinIO, Redis, OpenSearch, ZooKeeper) |
+| **Python** | 3.12+ | All backend microservices |
+| **Node.js** | 20+ | Frontend dev servers |
+| **npm** | 10+ | Frontend package management |
+| **PostgreSQL** | 16+ | M6 Control Plane database (running locally on port 5432) |
+
+### One-Command Launch (Backend + Infrastructure + Web UIs)
+
 ```powershell
+# Clone the repository
+git clone <repository-url>
+cd ULPF
+
+# Launch the complete stack with web UIs
 python run_stack.py --with-ui
 ```
-The supervisor sequentially executes:
-1. Docker container initialization and readiness probing (Kafka, ZooKeeper, MinIO, Redis, OpenSearch).
-2. PostgreSQL database schema verification.
-3. Microservice startup (M6, ConfigSync, M1, M2, M3, M4, M5, Gateway, Health Aggregator).
-4. M1→M2 Kafka consumer bridge activation.
-5. Web frontend dev server launch with reverse proxy bindings.
-6. Probes all health endpoints and reports `ULPF INTEGRATED PIPELINE READY`.
 
-### Stop All Services Cleanly
+The `run_stack.py` supervisor automatically:
+
+1. ✅ Verifies Docker is running and starts infrastructure containers
+2. ✅ Probes ZooKeeper, Kafka, MinIO, Redis, OpenSearch, PostgreSQL readiness
+3. ✅ Creates required Kafka topics and MinIO buckets if missing
+4. ✅ Starts all 9 backend microservices sequentially with health verification
+5. ✅ Activates the M1→M2 Kafka consumer bridge with liveness monitoring
+6. ✅ Launches M6 and M3 frontend dev servers
+7. ✅ Reports `ULPF INTEGRATED PIPELINE READY` when all services pass health checks
+
+### Access Points
+
+| Service | URL | Credentials |
+|:--|:--|:--|
+| **M6 Control Plane Dashboard** | [http://127.0.0.1:5173](http://127.0.0.1:5173) | `admin` / `Admin_Secure_Pass_2026!` |
+| **M3 Normalizer Console** | [http://127.0.0.1:5174](http://127.0.0.1:5174) | No authentication |
+| **M6 API Documentation** | [http://127.0.0.1:18086/docs](http://127.0.0.1:18086/docs) | — |
+| **M6 ReDoc** | [http://127.0.0.1:18086/redoc](http://127.0.0.1:18086/redoc) | — |
+| **MinIO Console** | [http://127.0.0.1:9001](http://127.0.0.1:9001) | `minioadmin` / `minioadminsecret` |
+| **Grafana** | [http://127.0.0.1:3000](http://127.0.0.1:3000) | `admin` / `admin` |
+
+### Stop All Services
+
 ```powershell
 python run_stack.py --stop
 ```
 
-## Automated Verification & Testing
+> 📖 For detailed step-by-step setup instructions, see [docs/SETUP.md](docs/SETUP.md).
 
-Execute the end-to-end verification suite:
+---
+
+## ⚙️ Installation (Manual / Step-by-Step)
+
+### 1. Infrastructure (Docker Containers)
+
 ```powershell
+cd M6/M6-SIH-main
+docker compose up -d
+```
+
+This starts: PostgreSQL 16, Redis 7, Kafka 3.7 (KRaft mode), MinIO, OpenSearch 2.14, Prometheus, Grafana.
+
+### 2. PostgreSQL Database
+
+Ensure a local PostgreSQL 16+ instance is running with:
+- **Database**: `ulpf_m6`
+- **User**: `ulpf_admin`
+- **Password**: `ulpf_secure_password`
+
+Run migrations:
+```powershell
+cd M6/M6-SIH-main/backend
+alembic upgrade head
+```
+
+Seed initial data:
+```powershell
+cd M6/M6-SIH-main
+python scripts/seed.py
+```
+
+### 3. Python Virtual Environments
+
+Each microservice can use its own virtual environment. The M6 module:
+```powershell
+cd M6/M6-SIH-main
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### 4. Frontend Dependencies
+
+```powershell
+cd M6/M6-SIH-main/frontend
+npm install
+```
+
+### 5. Start Services
+
+Use the unified orchestrator:
+```powershell
+# Backend only
+python run_stack.py
+
+# Backend + Web UIs
+python run_stack.py --with-ui
+
+# Infrastructure verification only
+python run_stack.py --infra-only
+```
+
+---
+
+## 🔐 Environment Variables
+
+Copy the example environment file:
+```powershell
+cd M6/M6-SIH-main
+cp .env.example .env
+```
+
+### Critical Variables
+
+| Variable | Required | Purpose | Example |
+|:--|:--:|:--|:--|
+| `SECRET_KEY` | ✅ | JWT signing key (min 32 chars) | `openssl rand -hex 32` |
+| `ADMIN_PASSWORD` | ✅ | Initial admin account password | `<strong-password>` |
+| `POSTGRES_PASSWORD` | ✅ | PostgreSQL password | `<strong-password>` |
+| `POSTGRES_HOST` | ✅ | PostgreSQL hostname | `localhost` |
+| `POSTGRES_DB` | ✅ | Database name | `m6_control_plane` |
+| `POSTGRES_USER` | ✅ | Database user | `m6user` |
+| `REDIS_HOST` | — | Redis hostname | `localhost` |
+| `KAFKA_BOOTSTRAP_SERVERS` | — | Kafka broker address | `localhost:9092` |
+| `MINIO_ENDPOINT` | — | MinIO S3 endpoint | `localhost:9000` |
+| `OPENSEARCH_HOST` | — | OpenSearch hostname | `localhost` |
+| `M1_BASE_URL` .. `M5_BASE_URL` | — | Pipeline module URLs | `http://127.0.0.1:18001` |
+| `USE_MOCK_ADAPTERS` | — | Use mock adapters (CI/offline) | `false` |
+| `CORS_ORIGINS` | — | Allowed CORS origins | `http://localhost:5173` |
+
+> ⚠️ The `.env.example` file contains placeholder values. **Never commit actual secrets to version control.**
+
+---
+
+## 🐳 Docker
+
+### Infrastructure Services (docker-compose.yml in M6/M6-SIH-main)
+
+| Service | Image | Port(s) | Health Check |
+|:--|:--|:--|:--|
+| `m6-api` | `ulpf/m6-control-plane:latest` | 8000 | `curl http://localhost:8000/health` |
+| `postgres` | `postgres:16-alpine` | 5432 | `pg_isready` |
+| `redis` | `redis:7-alpine` | 6379 | `redis-cli ping` |
+| `kafka` | `apache/kafka:3.7.0` | 9092 | `kafka-topics.sh --list` |
+| `minio` | `quay.io/minio/minio:latest` | 9000, 9001 | `curl http://localhost:9000/minio/health/live` |
+| `opensearch` | `opensearchproject/opensearch:2.14.0` | 9200 | `curl http://localhost:9200/_cluster/health` |
+| `prometheus` | `prom/prometheus:v2.52.0` | 9090 | `wget http://localhost:9090/-/healthy` |
+| `grafana` | `grafana/grafana:10.4.4` | 3000 | `curl http://localhost:3000/api/health` |
+
+### Common Commands
+
+```powershell
+# Start infrastructure
+cd M6/M6-SIH-main
+docker compose up -d
+
+# View running containers
+docker compose ps
+
+# Tail logs
+docker compose logs -f
+
+# Tail specific service logs
+docker compose logs -f m6-api
+
+# Stop all containers
+docker compose down
+
+# Stop and remove volumes (full reset)
+docker compose down -v
+
+# Rebuild M6 API image
+docker build -t ulpf/m6-control-plane:latest .
+```
+
+---
+
+## 🗄️ Database
+
+### Technology
+- **Engine**: PostgreSQL 16
+- **ORM**: SQLAlchemy 2.0 (async via asyncpg)
+- **Migrations**: Alembic with 2 migration versions
+
+### Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    TENANT ||--o{ SOURCE : "has many"
+    TENANT ||--o{ USER : "belongs to"
+    USER   ||--o{ USER_ROLE : "has roles"
+    ROLE   ||--o{ USER_ROLE : "assigned to"
+    
+    TENANT ||--o{ PARSER : "owns"
+    TENANT ||--o{ MAPPING : "owns"
+    TENANT ||--o{ POLICY : "owns"
+    TENANT ||--o{ SCHEMA : "owns"
+    
+    PARSER ||--o{ PARSER_VERSION : "has versions"
+    MAPPING ||--o{ MAPPING_VERSION : "has versions"
+    POLICY ||--o{ POLICY_VERSION : "has versions"
+    SCHEMA ||--o{ SCHEMA_VERSION : "has versions"
+    
+    CONFIGURATION_VERSION ||--o{ DISTRIBUTION_TARGET_STATE : "targets"
+    
+    TENANT {
+        uuid id PK
+        string name
+        string slug
+        enum status
+        jsonb metadata
+    }
+    USER {
+        uuid id PK
+        string username
+        string email
+        string password_hash
+        boolean is_active
+    }
+    ROLE {
+        uuid id PK
+        string name
+    }
+    SOURCE {
+        uuid id PK
+        string name
+        string source_type
+        enum status
+        uuid tenant_id FK
+    }
+    PARSER {
+        uuid id PK
+        string name
+        string format_type
+        jsonb regex_pattern
+        enum status
+        uuid tenant_id FK
+    }
+    MAPPING {
+        uuid id PK
+        string name
+        jsonb field_mappings
+        uuid tenant_id FK
+    }
+    POLICY {
+        uuid id PK
+        string name
+        jsonb rules
+        uuid tenant_id FK
+    }
+    SCHEMA {
+        uuid id PK
+        string name
+        string version
+        jsonb definition
+        enum status
+    }
+    SERVICE {
+        uuid id PK
+        string name
+        string url
+        string status
+    }
+    AUDIT_LOG {
+        uuid id PK
+        enum action
+        string entity_type
+        uuid entity_id
+        uuid user_id FK
+        jsonb changes
+        enum result
+        timestamp created_at
+    }
+    REPLAY_OPERATION {
+        uuid id PK
+        string status
+        jsonb parameters
+        timestamp created_at
+    }
+    CONFIGURATION_VERSION {
+        uuid id PK
+        integer version_number
+        jsonb snapshot
+        enum distribution_status
+    }
+```
+
+### Migration Commands
+
+```powershell
+cd M6/M6-SIH-main/backend
+
+# Apply all migrations
+alembic upgrade head
+
+# Rollback last migration
+alembic downgrade -1
+
+# View migration history
+alembic history --verbose
+```
+
+### Seed Data
+
+```powershell
+cd M6/M6-SIH-main
+python scripts/seed.py
+```
+
+---
+
+## 🔑 Authentication & Roles
+
+### Authentication Flow
+
+```
+Client → POST /api/v1/auth/login (username + password)
+       ← JWT access_token + refresh_token
+       
+Client → GET /api/v1/tenants (Authorization: Bearer <token>)
+       ← Protected resource response
+```
+
+- **Method**: JWT (HS256) via `python-jose`
+- **Password Hashing**: bcrypt via `passlib`
+- **Token Expiry**: Access = 60 min, Refresh = 7 days
+
+### Role Hierarchy
+
+| Role | Permissions |
+|:-----|:-----------|
+| **SUPER_ADMIN / ADMINISTRATOR** | Full system access. Manage all tenants, users, configurations, services. |
+| **TENANT_ADMIN** | Full access within assigned tenant. Manage sources, parsers, policies. |
+| **PARSER_DEVELOPER** | Create and manage parsers, mappings, schemas within assigned tenant. |
+| **SECURITY_ANALYST** | View events, traces, audit logs. Read-only access to configurations. |
+| **VIEWER** | Read-only access to dashboards and event data. |
+
+---
+
+## 🔌 API Endpoints
+
+All API routes are prefixed with `/api/v1`. Full interactive documentation is available at `/docs` (Swagger UI) and `/redoc`.
+
+| Method | Endpoint | Purpose | Auth Required |
+|:-------|:---------|:--------|:-------------:|
+| `POST` | `/api/v1/auth/login` | Authenticate and obtain JWT tokens | ❌ |
+| `POST` | `/api/v1/auth/refresh` | Refresh access token | ✅ |
+| `GET` | `/api/v1/tenants` | List all tenants | ✅ |
+| `POST` | `/api/v1/tenants` | Create new tenant | ✅ (Admin) |
+| `GET` | `/api/v1/sources` | List log sources | ✅ |
+| `POST` | `/api/v1/sources` | Register new source | ✅ (Admin) |
+| `GET` | `/api/v1/parsers` | List parsers | ✅ |
+| `POST` | `/api/v1/parsers` | Create parser definition | ✅ (Admin/Dev) |
+| `POST` | `/api/v1/parsers/{id}/test` | Test parser against sample log | ✅ |
+| `GET` | `/api/v1/schemas` | List UES schemas | ✅ |
+| `GET` | `/api/v1/mappings` | List field mappings | ✅ |
+| `POST` | `/api/v1/mappings` | Create field mapping | ✅ (Admin/Dev) |
+| `GET` | `/api/v1/policies` | List routing policies | ✅ |
+| `POST` | `/api/v1/policies` | Create routing policy | ✅ (Admin) |
+| `GET` | `/api/v1/services` | List registered M1-M5 services | ✅ |
+| `GET` | `/api/v1/audit` | Query audit log | ✅ |
+| `POST` | `/api/v1/replay` | Trigger event replay | ✅ (Admin) |
+| `POST` | `/api/v1/configuration/deploy` | Deploy config version to modules | ✅ (Admin) |
+| `GET` | `/api/v1/kafka/topics` | List Kafka topics | ✅ |
+| `GET` | `/health` | Service health check | ❌ |
+| `GET` | `/metrics` | Prometheus metrics | ❌ |
+
+---
+
+## 🔄 Core Workflows
+
+### Event Processing Pipeline
+
+```
+1. External security device sends syslog to Gateway (:18080)
+   ↓
+2. Gateway validates tenant API key and forwards to M1
+   ↓
+3. M1 computes SHA-256 hash, stores raw blob in MinIO, publishes to Kafka
+   ↓
+4. Consumer Bridge consumes from Kafka topic 'ulpf.raw', forwards to M2
+   ↓
+5. M2 classifies log format and applies matching regex parser
+   ↓
+6. M3 normalizes parsed fields into UES v1.0.0 canonical schema
+   ↓
+7. M4 enriches with GeoIP, asset metadata, threat intelligence
+   ↓
+8. M5 evaluates routing policies and delivers to configured destinations
+   ↓
+9. Events appear in OpenSearch (searchable) and MinIO Data Lake (archived)
+```
+
+### Configuration Deployment Workflow
+
+```
+1. Admin updates parser/mapping/policy via M6 Dashboard
+   ↓
+2. M6 API creates new ConfigurationVersion with snapshot
+   ↓
+3. Admin triggers "Deploy Configuration" action
+   ↓
+4. ConfigSync Worker publishes to Redis distributed bus
+   ↓
+5. Target modules (M1-M5) receive and apply configuration atomically
+   ↓
+6. DistributionTargetState tracks per-module acknowledgment
+```
+
+---
+
+## 🧪 Testing
+
+### Automated Tests
+
+```powershell
+# Run all tests (M6 module)
+cd M6/M6-SIH-main
+python -m pytest tests/ -v
+
+# Unit tests only
+python -m pytest tests/unit/ -v
+
+# API endpoint tests
+python -m pytest tests/api/ -v
+
+# Contract tests (JSON Schema validation)
+python -m pytest tests/contract/ -v -s
+
+# Integration tests (requires running infrastructure)
+python -m pytest tests/integration/ -v -s
+
+# E2E with mocked M1-M5 adapters
+$env:USE_MOCK_ADAPTERS="true"; python -m pytest tests/ -v -s --timeout=60
+```
+
+### End-to-End Verification
+
+```powershell
+# Full pipeline verification (requires all services running)
 python integration/scratch/verify_web_e2e.py
 ```
-This suite verifies:
-- Web UIs served on ports `5173` and `5174`
+
+This verifies:
+- Web UIs served on ports 5173 and 5174
 - OAuth2 login and JWT session validation
-- Real tenant querying and isolation
-- System Health Aggregator reporting all 8 modules `HEALTHY`
-- M2 Regex parsing of live raw Cisco ASA logs
-- M3 Normalization into Canonical UES v1.0.0
-- Live event injection through Ingress Gateway into Kafka and OpenSearch
+- Tenant isolation
+- All 8 modules report HEALTHY
+- M2 regex parsing of live Cisco ASA logs
+- M3 normalization into UES v1.0.0
+- Event injection through Gateway → Kafka → OpenSearch
 
+### Manual Verification Checklist
 
-<<<<<<< HEAD
-## Repository Structure
+- [ ] Docker containers running (`docker compose ps`)
+- [ ] PostgreSQL accepts connections on :5432
+- [ ] Redis responds to PING on :6379
+- [ ] Kafka broker ready on :9092
+- [ ] MinIO health at :9000/minio/health/ready
+- [ ] OpenSearch cluster at :9200/_cluster/health
+- [ ] M6 API responds at http://127.0.0.1:18086/health
+- [ ] M6 Dashboard loads at http://127.0.0.1:5173
+- [ ] Login with admin credentials succeeds
+- [ ] Dashboard displays service health status
 
-=======
-## 📁 Repository Structure
->>>>>>> 79b19a9 (Update ULPF dashboard and pipeline animation)
-```
-E:\ULPF
-├── M1/               # Ingestion Boundary, UDP/TCP Syslog, MinIO Vault, Outbox
-├── M2/               # Format Classifier, Parser Engine, ReDoS Validator
-├── M3/               # Universal Event Schema (UES v1.0.0) Normalizer & Frontend
-├── M4/               # Context Enrichment Engine
-├── M5/               # Smart Router, Delivery Connectors, OpenSearch Client
-├── M6/               # Admin Control Plane Backend & Frontend Dashboard
-├── integration/      # Security Gateway, ConfigSync, Health Aggregator, Bridge
-├── run_stack.py      # Unified Deployment Supervisor & Process Orchestrator
-└── README.md         # Architecture, Overview, and Quickstart
-```
+---
 
+## 🎬 Hackathon Demo Flow
 
-## License & Purpose
-This codebase is developed as an integrated prototype for the **Universal Log Pre-processing Framework (ULPF)**. It demonstrates high-throughput log ingestion, semantic normalization, multi-tenant isolation, and central control-plane governance.
+| Time | Action | Expected Result |
+|:-----|:-------|:----------------|
+| 0:00 | Navigate to `http://127.0.0.1:5173` | Login page loads |
+| 0:30 | Login with `admin` / `Admin_Secure_Pass_2026!` | Dashboard loads with pipeline overview |
+| 1:00 | **Dashboard** — Review system health indicators | All 6 modules + Gateway + ConfigSync show HEALTHY |
+| 2:00 | **Settings → Tenants** — Create a new expedition tenant | Tenant created with isolated namespace |
+| 3:00 | **Settings → Sources** — Register a log source for the tenant | Source registered with metadata |
+| 4:00 | **Parsers** — Open Parser Studio, create regex parser | Parser definition saved, test against sample log |
+| 5:00 | **Pipeline** — Navigate to Event Pipeline view | Animated pipeline visualization showing M1→M5 flow |
+| 6:00 | **Events** — View unified event explorer | Events displayed with raw, parsed, and UES views |
+| 7:00 | **System** — Check Health, Audit, Services tabs | Health aggregator, audit trail, service registry |
+| 8:00 | **Architecture** — Show built-in architecture diagram | Interactive system architecture visualization |
+| 9:00 | **Demo Mode** — Activate demo simulation | Simulated events flowing through pipeline |
+
+---
+
+## 🛡️ Security
+
+### Implemented Security Measures
+
+- ✅ JWT-based authentication with configurable token expiry
+- ✅ bcrypt password hashing (passlib)
+- ✅ Role-based access control (RBAC) with 5-role hierarchy
+- ✅ Multi-tenant data isolation
+- ✅ Anti-spoofing at Ingress Gateway
+- ✅ CORS configuration with explicit origin allowlists
+- ✅ Input validation via Pydantic v2 schemas
+- ✅ SQL injection protection via SQLAlchemy parameterized queries
+- ✅ Complete audit logging of administrative actions
+- ✅ Cryptographic SHA-256 hashing of all raw evidence
+- ✅ Non-root Docker container execution
+- ✅ Secret management via environment variables (no hardcoded credentials in config)
+- ✅ Docker healthchecks on all infrastructure services
+- ✅ ReDoS polynomial backtracking guard in regex parser engine
+
+### Recommended Production Hardening (Not Currently Implemented)
+
+- ⬜ HTTPS/TLS termination (reverse proxy)
+- ⬜ API rate limiting middleware
+- ⬜ Network segmentation / VPC Service Controls
+- ⬜ Secret vault integration (HashiCorp Vault / AWS Secrets Manager)
+- ⬜ Container image vulnerability scanning in CI/CD
+- ⬜ Database connection encryption (SSL/TLS)
+- ⬜ OWASP dependency audit pipeline
+
+---
+
+## ⚠️ Known Limitations
+
+1. **Local PostgreSQL required**: The unified `run_stack.py` orchestrator expects PostgreSQL running locally on port 5432 (not containerized in the integration stack).
+2. **Windows-primary development**: The `run_stack.py` orchestrator uses hardcoded `E:/ULPF` paths and Windows-specific process management (`taskkill`, `netstat`). Linux/macOS deployment requires path modifications.
+3. **M3 mapping warnings**: Two mapping files (`audit_mapping_cisco.yaml`, `custom_mapping.yaml`) have schema validation errors and are skipped at startup. 5 valid vendor mappings remain functional.
+4. **No HTTPS**: All services communicate over HTTP. TLS termination should be added for production.
+5. **Mock connectors**: M5 supports mock mode for OpenSearch, Data Lake, Kafka, and HTTP destinations — useful for development but must be disabled in production.
+6. **Separate virtual environments**: M1 and M6 use separate `.venv` directories. The orchestrator hardcodes paths to these virtualenvs.
+7. **No CI/CD pipeline**: No GitHub Actions or CI workflow is configured for automated testing and deployment.
+
+---
+
+## 🔮 Future Enhancements
+
+These features are **not currently implemented** and are identified as potential extensions:
+
+- ⚪ GPS/RFID-integrated asset tracking for expedition equipment
+- ⚪ Satellite communication link monitoring for remote stations
+- ⚪ AI-assisted log anomaly detection and threat scoring
+- ⚪ Predictive inventory consumption alerts
+- ⚪ Route optimization for inter-station logistics
+- ⚪ Offline-first field operation mode with data sync
+- ⚪ Digital twin for station infrastructure monitoring
+- ⚪ IoT sensor telemetry integration (temperature, weather, structural)
+- ⚪ Automated emergency response escalation workflows
+- ⚪ Mobile application for field personnel
+
+---
+
+## 📊 Project Impact
+
+| Area | Benefit |
+|:-----|:--------|
+| **Centralized Visibility** | Single control plane for all expedition telemetry across disparate vendor systems |
+| **Forensic Traceability** | Every raw event is cryptographically hashed and immutably stored before transformation |
+| **Multi-Tenant Isolation** | Each expedition/station operates in its own isolated data namespace |
+| **Operational Automation** | Zero-touch event processing from ingestion through classification, normalization, and routing |
+| **Configuration Governance** | Versioned configuration deployment with audit trail and per-module acknowledgment tracking |
+| **Vendor Agnostic** | Normalizes Cisco ASA, Fortinet, Palo Alto, and Windows Event formats into a single canonical schema |
+
+---
+
+## 👥 Team
+
+**ULPF Team** — Project developed as an integrated prototype for the Universal Log Pre-processing Framework.
+
+---
+
+## 📄 License
+
+MIT License. See [pyproject.toml](M6/M6-SIH-main/pyproject.toml) for details.
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|:---------|:-----------|
+| [**Setup Guide**](docs/SETUP.md) | Complete step-by-step installation and configuration |
+| [**Architecture**](docs/ARCHITECTURE.md) | Detailed system architecture and component design |
+| [**API Reference**](docs/API.md) | Backend API endpoint documentation |
+| [**Demo Guide**](docs/DEMO.md) | Hackathon demonstration walkthrough |
+| [**M6 Existing Docs**](M6/M6-SIH-main/docs/) | M6-specific architecture, ops runbook, demo guide |
