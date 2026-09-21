@@ -864,7 +864,7 @@ This verifies:
 ## Team
 
 **ULPF Team**
-- [@janark07]([https://github.com](https://github.com/janark07))
+- [@janark07](https://github.com/janark07)
 - [navaneethakrishnanp16-cell](https://github.com/navaneethakrishnanp16-cell)
 - [@robinramachandran01-jpg](https://github.com/robinramachandran01-jpg)
 - [@srihari2007sa](https://github.com/srihari2007sa)
