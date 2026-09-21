@@ -80,7 +80,7 @@ The system processes raw security logs through a **5-stage pipeline** (Ingest �
 │        ↓  (Kafka Consumer Bridge — automatic)                   │
 │  M2: Auto-classify format → Apply matching parser               │
 │        ↓                                                        │
-│  M3: Transform to UES v1.0.0 canonical schema                  │
+│  M3: Transform to UES v1.0.0 canonical schema                   │
 │        ↓                                                        │
 │  M4: Enrich with GeoIP, asset metadata                          │
 │        ↓                                                        │
