@@ -19,7 +19,7 @@
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 > *"Develop a centralized digital platform for expedition planning, cargo tracking, inventory management, personnel movement and emergency response."*
 > — National Centre for Polar and Ocean Research (NCPOR), MoES
@@ -28,7 +28,7 @@ Polar expeditions generate massive volumes of operational telemetry across heter
 
 ---
 
-## 💡 Our Solution
+## Our Solution
 
 ULPF is a **microservice-based log processing pipeline** composed of 6 specialized engines (M1–M6), an integration layer, and two web interfaces. It solves the core data integration problem that underpins any expedition management platform:
 
@@ -43,7 +43,7 @@ The system processes raw security logs through a **5-stage pipeline** (Ingest �
 
 ---
 
-## 🚀 Key Capabilities
+## Key Capabilities
 
 | Capability | Description | Status |
 |:--|:--|:--:|
@@ -65,7 +65,7 @@ The system processes raw security logs through a **5-stage pipeline** (Ingest �
 
 ---
 
-## 🧠 Smart Automation
+## Smart Automation
 
 ### Currently Implemented Automation
 
@@ -101,17 +101,9 @@ The system processes raw security logs through a **5-stage pipeline** (Ingest �
 - **Automated configuration deployment**: When an admin updates a parser or routing policy, the change atomically propagates to all pipeline modules via Redis — no manual restart required.
 - **Self-healing delivery**: Failed event deliveries are automatically retried with exponential backoff and routed to a dead letter queue for operator review.
 
-### Future Automation (Not Currently Implemented)
-
-- ⚪ AI-assisted log anomaly detection
-- ⚪ Predictive inventory alerts based on consumption patterns
-- ⚪ GPS/RFID-integrated asset tracking
-- ⚪ Satellite communication link monitoring
-- ⚪ Automated emergency response escalation
-
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TB
@@ -176,7 +168,7 @@ flowchart TB
 
 ---
 
-## 🔄 End-to-End Data Flow
+## End-to-End Data Flow
 
 ```
 External Syslog / JSON Event
@@ -220,7 +212,7 @@ M5 — Smart Router & Delivery (:18085)
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technology | Version | Purpose |
 |:------|:-----------|:--------|:--------|
@@ -242,7 +234,7 @@ M5 — Smart Router & Delivery (:18085)
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 E:\ULPF\
@@ -333,7 +325,7 @@ E:\ULPF\
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -358,13 +350,13 @@ python run_stack.py --with-ui
 
 The `run_stack.py` supervisor automatically:
 
-1. ✅ Verifies Docker is running and starts infrastructure containers
-2. ✅ Probes ZooKeeper, Kafka, MinIO, Redis, OpenSearch, PostgreSQL readiness
-3. ✅ Creates required Kafka topics and MinIO buckets if missing
-4. ✅ Starts all 9 backend microservices sequentially with health verification
-5. ✅ Activates the M1→M2 Kafka consumer bridge with liveness monitoring
-6. ✅ Launches M6 and M3 frontend dev servers
-7. ✅ Reports `ULPF INTEGRATED PIPELINE READY` when all services pass health checks
+1. Verifies Docker is running and starts infrastructure containers
+2. Probes ZooKeeper, Kafka, MinIO, Redis, OpenSearch, PostgreSQL readiness
+3. Creates required Kafka topics and MinIO buckets if missing
+4. Starts all 9 backend microservices sequentially with health verification
+5. Activates the M1→M2 Kafka consumer bridge with liveness monitoring
+6. Launches M6 and M3 frontend dev servers
+7. Reports `ULPF INTEGRATED PIPELINE READY` when all services pass health checks
 
 ### Access Points
 
@@ -383,11 +375,11 @@ The `run_stack.py` supervisor automatically:
 python run_stack.py --stop
 ```
 
-> 📖 For detailed step-by-step setup instructions, see [docs/SETUP.md](docs/SETUP.md).
+> For detailed step-by-step setup instructions, see [docs/SETUP.md](docs/SETUP.md).
 
 ---
 
-## ⚙️ Installation (Manual / Step-by-Step)
+## Installation (Manual / Step-by-Step)
 
 ### 1. Infrastructure (Docker Containers)
 
@@ -450,7 +442,7 @@ python run_stack.py --infra-only
 
 ---
 
-## 🔐 Environment Variables
+## Environment Variables
 
 Copy the example environment file:
 ```powershell
@@ -476,11 +468,11 @@ cp .env.example .env
 | `USE_MOCK_ADAPTERS` | — | Use mock adapters (CI/offline) | `false` |
 | `CORS_ORIGINS` | — | Allowed CORS origins | `http://localhost:5173` |
 
-> ⚠️ The `.env.example` file contains placeholder values. **Never commit actual secrets to version control.**
+> The `.env.example` file contains placeholder values. **Never commit actual secrets to version control.**
 
 ---
 
-## 🐳 Docker
+## Docker
 
 ### Infrastructure Services (docker-compose.yml in M6/M6-SIH-main)
 
@@ -523,7 +515,7 @@ docker build -t ulpf/m6-control-plane:latest .
 
 ---
 
-## 🗄️ Database
+## Database
 
 ### Technology
 - **Engine**: PostgreSQL 16
@@ -657,7 +649,7 @@ python scripts/seed.py
 
 ---
 
-## 🔑 Authentication & Roles
+## Authentication & Roles
 
 ### Authentication Flow
 
@@ -685,7 +677,7 @@ Client → GET /api/v1/tenants (Authorization: Bearer <token>)
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 All API routes are prefixed with `/api/v1`. Full interactive documentation is available at `/docs` (Swagger UI) and `/redoc`.
 
@@ -715,7 +707,7 @@ All API routes are prefixed with `/api/v1`. Full interactive documentation is av
 
 ---
 
-## 🔄 Core Workflows
+## Core Workflows
 
 ### Event Processing Pipeline
 
@@ -757,7 +749,7 @@ All API routes are prefixed with `/api/v1`. Full interactive documentation is av
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Automated Tests
 
@@ -813,56 +805,38 @@ This verifies:
 
 ---
 
-## 🎬 Hackathon Demo Flow
-
-| Time | Action | Expected Result |
-|:-----|:-------|:----------------|
-| 0:00 | Navigate to `http://127.0.0.1:5173` | Login page loads |
-| 0:30 | Login with `admin` / `Admin_Secure_Pass_2026!` | Dashboard loads with pipeline overview |
-| 1:00 | **Dashboard** — Review system health indicators | All 6 modules + Gateway + ConfigSync show HEALTHY |
-| 2:00 | **Settings → Tenants** — Create a new expedition tenant | Tenant created with isolated namespace |
-| 3:00 | **Settings → Sources** — Register a log source for the tenant | Source registered with metadata |
-| 4:00 | **Parsers** — Open Parser Studio, create regex parser | Parser definition saved, test against sample log |
-| 5:00 | **Pipeline** — Navigate to Event Pipeline view | Animated pipeline visualization showing M1→M5 flow |
-| 6:00 | **Events** — View unified event explorer | Events displayed with raw, parsed, and UES views |
-| 7:00 | **System** — Check Health, Audit, Services tabs | Health aggregator, audit trail, service registry |
-| 8:00 | **Architecture** — Show built-in architecture diagram | Interactive system architecture visualization |
-| 9:00 | **Demo Mode** — Activate demo simulation | Simulated events flowing through pipeline |
-
----
-
-## 🛡️ Security
+## Security
 
 ### Implemented Security Measures
 
-- ✅ JWT-based authentication with configurable token expiry
-- ✅ bcrypt password hashing (passlib)
-- ✅ Role-based access control (RBAC) with 5-role hierarchy
-- ✅ Multi-tenant data isolation
-- ✅ Anti-spoofing at Ingress Gateway
-- ✅ CORS configuration with explicit origin allowlists
-- ✅ Input validation via Pydantic v2 schemas
-- ✅ SQL injection protection via SQLAlchemy parameterized queries
-- ✅ Complete audit logging of administrative actions
-- ✅ Cryptographic SHA-256 hashing of all raw evidence
-- ✅ Non-root Docker container execution
-- ✅ Secret management via environment variables (no hardcoded credentials in config)
-- ✅ Docker healthchecks on all infrastructure services
-- ✅ ReDoS polynomial backtracking guard in regex parser engine
+- JWT-based authentication with configurable token expiry
+- bcrypt password hashing (passlib)
+- Role-based access control (RBAC) with 5-role hierarchy
+- Multi-tenant data isolation
+- Anti-spoofing at Ingress Gateway
+- CORS configuration with explicit origin allowlists
+- Input validation via Pydantic v2 schemas
+- SQL injection protection via SQLAlchemy parameterized queries
+- Complete audit logging of administrative actions
+- Cryptographic SHA-256 hashing of all raw evidence
+- Non-root Docker container execution
+- Secret management via environment variables (no hardcoded credentials in config)
+- Docker healthchecks on all infrastructure services
+- ReDoS polynomial backtracking guard in regex parser engine
 
 ### Recommended Production Hardening (Not Currently Implemented)
 
-- ⬜ HTTPS/TLS termination (reverse proxy)
-- ⬜ API rate limiting middleware
-- ⬜ Network segmentation / VPC Service Controls
-- ⬜ Secret vault integration (HashiCorp Vault / AWS Secrets Manager)
-- ⬜ Container image vulnerability scanning in CI/CD
-- ⬜ Database connection encryption (SSL/TLS)
-- ⬜ OWASP dependency audit pipeline
+- HTTPS/TLS termination (reverse proxy)
+- API rate limiting middleware
+- Network segmentation / VPC Service Controls
+- Secret vault integration (HashiCorp Vault / AWS Secrets Manager)
+- Container image vulnerability scanning in CI/CD
+- Database connection encryption (SSL/TLS)
+- OWASP dependency audit pipeline
 
 ---
 
-## ⚠️ Known Limitations
+## Known Limitations
 
 1. **Local PostgreSQL required**: The unified `run_stack.py` orchestrator expects PostgreSQL running locally on port 5432 (not containerized in the integration stack).
 2. **Windows-primary development**: The `run_stack.py` orchestrator uses hardcoded `E:/ULPF` paths and Windows-specific process management (`taskkill`, `netstat`). Linux/macOS deployment requires path modifications.
@@ -874,24 +848,7 @@ This verifies:
 
 ---
 
-## 🔮 Future Enhancements
-
-These features are **not currently implemented** and are identified as potential extensions:
-
-- ⚪ GPS/RFID-integrated asset tracking for expedition equipment
-- ⚪ Satellite communication link monitoring for remote stations
-- ⚪ AI-assisted log anomaly detection and threat scoring
-- ⚪ Predictive inventory consumption alerts
-- ⚪ Route optimization for inter-station logistics
-- ⚪ Offline-first field operation mode with data sync
-- ⚪ Digital twin for station infrastructure monitoring
-- ⚪ IoT sensor telemetry integration (temperature, weather, structural)
-- ⚪ Automated emergency response escalation workflows
-- ⚪ Mobile application for field personnel
-
----
-
-## 📊 Project Impact
+## Project Impact
 
 | Area | Benefit |
 |:-----|:--------|
@@ -904,24 +861,17 @@ These features are **not currently implemented** and are identified as potential
 
 ---
 
-## 👥 Team
+## Team
 
 **ULPF Team** — Project developed as an integrated prototype for the Universal Log Pre-processing Framework.
 
 ---
 
-## 📄 License
-
-MIT License. See [pyproject.toml](M6/M6-SIH-main/pyproject.toml) for details.
-
----
-
-## 📚 Documentation
+## Documentation
 
 | Document | Description |
 |:---------|:-----------|
 | [**Setup Guide**](docs/SETUP.md) | Complete step-by-step installation and configuration |
 | [**Architecture**](docs/ARCHITECTURE.md) | Detailed system architecture and component design |
 | [**API Reference**](docs/API.md) | Backend API endpoint documentation |
-| [**Demo Guide**](docs/DEMO.md) | Hackathon demonstration walkthrough |
 | [**M6 Existing Docs**](M6/M6-SIH-main/docs/) | M6-specific architecture, ops runbook, demo guide |
