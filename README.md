@@ -915,7 +915,7 @@ These features are **not currently implemented** and are identified as potential
 
 ---
 
-## 👥 Team
+## Team
 
 **ULPF Team**
 - [@janark07](https://github.com/janark07)
@@ -927,7 +927,7 @@ These features are **not currently implemented** and are identified as potential
 ---
 
 
-## 📚 Documentation
+## Documentation
 
 | Document | Description |
 |:---------|:-----------|
