@@ -863,7 +863,12 @@ This verifies:
 
 ## Team
 
-**ULPF Team** — Project developed as an integrated prototype for the Universal Log Pre-processing Framework.
+**ULPF Team**
+- [@janark07]([https://github.com](https://github.com/janark07))
+- [navaneethakrishnanp16-cell](https://github.com/navaneethakrishnanp16-cell)
+- [@robinramachandran01-jpg](https://github.com/robinramachandran01-jpg)
+- [@srihari2007sa](https://github.com/srihari2007sa)
+- [@subiksha29-07](https://github.com/subiksha29-07)
 
 ---
 
